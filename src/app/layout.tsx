@@ -20,7 +20,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`}>
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0"
+        ></meta>
+      </head>
+      <body className={`${inter.variable} font-inter antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
