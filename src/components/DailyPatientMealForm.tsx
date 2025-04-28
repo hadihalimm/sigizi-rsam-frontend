@@ -14,6 +14,7 @@ import {
 import { Button } from "./ui/button";
 import axios, { AxiosError, isAxiosError } from "axios";
 import toast from "react-hot-toast";
+import { Save, Trash } from "lucide-react";
 
 interface DailyPatientMealFormProps {
   rooms: Room[];
@@ -343,14 +344,16 @@ const DailyPatientMealForm = ({
             variant="destructive"
             onClick={() => onDelete(initialData.id)}
           >
-            Delete
+            <Trash />
+            Hapus
           </Button>
         )}
         <div
           className={cn("", initialData ? "col-span-2" : "col-span-3")}
         ></div>
         <Button type="submit" className="w-full">
-          Submit
+          <Save />
+          Simpan
         </Button>
       </div>
     </form>
