@@ -168,7 +168,6 @@ const HomePage = () => {
     <div className="mt-10 flex w-full flex-col gap-y-5 px-4">
       <div className="flex gap-x-8">
         <DatePicker value={date} onChange={setDate} />
-
         <Select
           value={String(roomType)}
           onValueChange={(val) => setRoomType(Number(val))}
@@ -197,8 +196,9 @@ const HomePage = () => {
           Tambah Entri
         </Button>
       )}
-      {!roomType && <p>Silahkan pilih tanggal dan tipe ruangan</p>}
-      {roomType && data.length === 0 && <p>Tidak ada data</p>}
+
+      {(!date || !roomType) && <p>Silahkan pilih tanggal dan tipe ruangan</p>}
+      {date && roomType && data.length === 0 && <p>Tidak ada data</p>}
 
       {roomType && data.length > 0 && (
         <Table>
