@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Sidebar,
@@ -12,6 +14,7 @@ import {
   SidebarMenuItem,
 } from "./sidebar";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const sidebarData = [
   {
@@ -28,9 +31,25 @@ const sidebarData = [
       },
     ],
   },
+  {
+    title: "Admin",
+    url: "#",
+    items: [
+      {
+        title: "Katalog Menu",
+        url: "/menu",
+      },
+      {
+        title: "Katalog Makanan",
+        url: "/makanan",
+      },
+    ],
+  },
 ];
 
 const AppSidebar = () => {
+  const pathname = usePathname();
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -48,13 +67,16 @@ const AppSidebar = () => {
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {item.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <Link href={item.url}>{item.title}</Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {item.items.map((item) => {
+                  const isActive = pathname === item.url;
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive}>
+                        <Link href={item.url}>{item.title}</Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
