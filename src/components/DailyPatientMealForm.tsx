@@ -116,6 +116,7 @@ const DailyPatientMealForm = ({
           toast.error(err.message);
           return;
         }
+        toast.error(err.message);
       }
       setIsPatientNotExists(true);
     }
