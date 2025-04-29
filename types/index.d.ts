@@ -4,6 +4,7 @@ interface ResponseData<T> {
 }
 interface MealType {
   id: number;
+  code: string;
   name: string;
 }
 
@@ -33,9 +34,36 @@ interface DailyPatientMeal {
   roomID: number;
   mealTypeID: number;
   notes: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   patient: Patient;
   room: Room;
   mealType: MealType;
+  diets: Diet[];
+}
+
+interface Food {
+  id: number;
+  name: string;
+  unit: string;
+  price_per_unit: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface MealItem {
+  id: number;
+  mealTypeID: number;
+  foodID: number;
+  quantity: number;
+  mealType: MealType;
+  food: Food;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Diet {
+  id: number;
+  code: string;
+  name: string;
 }
