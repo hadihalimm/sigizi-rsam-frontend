@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker";
 import axios from "axios";
 import { format } from "date-fns";
 import {
@@ -48,6 +47,7 @@ import {
 import DailyPatientMealForm from "@/components/DailyPatientMealForm";
 import { id } from "date-fns/locale";
 import toast from "react-hot-toast";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 
 const HomePage = () => {
   const isMobile = useIsMobile();
@@ -167,7 +167,12 @@ const HomePage = () => {
   return (
     <div className="mt-10 flex w-full flex-col gap-y-5 px-4">
       <div className="flex gap-x-8">
-        <DatePicker value={date} onChange={setDate} />
+        <DateTimePicker
+          value={date}
+          onChange={setDate}
+          className="w-[250px]"
+          granularity="day"
+        />
         <Select
           value={String(roomType)}
           onValueChange={(val) => setRoomType(Number(val))}
