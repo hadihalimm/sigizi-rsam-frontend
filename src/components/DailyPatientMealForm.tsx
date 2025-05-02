@@ -15,10 +15,12 @@ import { Button } from "./ui/button";
 import axios, { AxiosError, isAxiosError } from "axios";
 import toast from "react-hot-toast";
 import { Save, Trash } from "lucide-react";
+import MultipleSelector, { Option } from "./ui/multi-select";
 
 interface DailyPatientMealFormProps {
   rooms: Room[];
   mealTypes: MealType[];
+  diets: Diet[];
   initialData?: DailyPatientMeal;
   onSuccess: () => void;
   className?: string;
@@ -33,11 +35,13 @@ const formSchema = z.object({
   roomID: z.number({ message: "Silahkan pilih Nomor Kamar" }),
   mealTypeID: z.number({ message: "Silahkan pilih Jenis Makanan" }),
   notes: z.string(),
+  dietIDs: z.array(z.number()),
 });
 
 const DailyPatientMealForm = ({
   rooms,
   mealTypes,
+  diets,
   initialData,
   onSuccess,
   className,
@@ -51,6 +55,7 @@ const DailyPatientMealForm = ({
       roomID: initialData?.roomID ?? "",
       mealTypeID: initialData?.mealTypeID ?? "",
       notes: initialData?.notes ?? "",
+      dietIDs: initialData?.diets.map((diet) => diet.id) ?? [],
     },
     validators: {
       onSubmit: formSchema,
@@ -64,8 +69,8 @@ const DailyPatientMealForm = ({
         roomID: value.roomID,
         mealTypeID: value.mealTypeID,
         notes: value.notes,
+        dietIDs: value.dietIDs,
       };
-
       try {
         const url = initialData
           ? `${baseUrl}/daily-patient-meal/${initialData.id}`
@@ -80,8 +85,10 @@ const DailyPatientMealForm = ({
           `Berhasil ${initialData ? "mengubah" : "menambahkan"} data`,
         );
       } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     },
   });
@@ -95,9 +102,29 @@ const DailyPatientMealForm = ({
       toast.success("Berhasil menghapus data");
       onSuccess();
     } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err.response?.data.error));
+      }
       console.error(err);
-      toast.error(String(err));
     }
+  };
+
+  const dietOptions: Option[] = diets.map((diet) => ({
+    label: diet.code,
+    value: diet.id.toString(),
+  }));
+  const [choosenDiet, setChoosenDiet] = useState<Option[]>(
+    initialData?.diets.map((diet) => ({
+      label: diet.code,
+      value: diet.id.toString(),
+    })) ?? [],
+  );
+  const handleDietChange = (selected: Option[]) => {
+    form.setFieldValue(
+      "dietIDs",
+      selected.map((option) => Number(option.value)),
+    );
+    setChoosenDiet(selected);
   };
 
   const [isPatientNotExists, setIsPatientNotExists] = useState(false);
@@ -113,10 +140,10 @@ const DailyPatientMealForm = ({
     } catch (err) {
       if (isAxiosError(err)) {
         if (err.code === AxiosError.ERR_NETWORK) {
-          toast.error(err.message);
+          toast.error(String(err.response?.data.error));
           return;
         }
-        toast.error(err.message);
+        toast.error(String(err.response?.data.error));
       }
       setIsPatientNotExists(true);
     }
@@ -314,9 +341,28 @@ const DailyPatientMealForm = ({
         </div>
 
         <div className="row-start-5">
+          <Label htmlFor="notes">Diet</Label>
+        </div>
+        <div className="col-span-3 row-start-5 max-h-[45px]">
+          <form.Field name="dietIDs">
+            {() => (
+              <div>
+                <MultipleSelector
+                  value={choosenDiet}
+                  onChange={handleDietChange}
+                  defaultOptions={dietOptions}
+                  placeholder="Pilih diet pasien..."
+                  hidePlaceholderWhenSelected
+                />
+              </div>
+            )}
+          </form.Field>
+        </div>
+
+        <div className="row-start-6">
           <Label htmlFor="notes">Catatan</Label>
         </div>
-        <div className="col-span-3 row-start-5">
+        <div className="col-span-3 row-start-6">
           <form.Field name="notes">
             {(field) =>
               initialData ? (
@@ -337,26 +383,34 @@ const DailyPatientMealForm = ({
             }
           </form.Field>
         </div>
+      </div>
 
-        {initialData && (
+      {initialData ? (
+        <div className="mt-8 flex justify-between">
           <Button
             type="button"
-            className="w-full"
+            className=""
             variant="destructive"
-            onClick={() => onDelete(initialData.id)}
+            onClick={() => {
+              onDelete(initialData.id);
+            }}
           >
             <Trash />
             Hapus
           </Button>
-        )}
-        <div
-          className={cn("", initialData ? "col-span-2" : "col-span-3")}
-        ></div>
-        <Button type="submit" className="w-full">
-          <Save />
-          Simpan
-        </Button>
-      </div>
+          <Button type="submit" className="">
+            <Save />
+            Simpan
+          </Button>
+        </div>
+      ) : (
+        <div className="mt-8 flex justify-end">
+          <Button type="submit" className="">
+            <Save />
+            Simpan
+          </Button>
+        </div>
+      )}
     </form>
   );
 };
