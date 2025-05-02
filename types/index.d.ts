@@ -26,6 +26,7 @@ interface Patient {
   medicalRecordNumber: string;
   name: string;
   dateOfBirth: string;
+  allergies: Allergy[];
 }
 
 interface DailyPatientMeal {
@@ -67,3 +68,20 @@ interface Diet {
   code: string;
   name: string;
 }
+
+interface Allergy {
+  id: number;
+  code: string;
+  name: string;
+}
+
+interface MealMatrixEntry {
+  treatmentClass: string;
+  mealType: string;
+  mealCount: string;
+}
+
+type MatrixRow = {
+  treatmentClass: string;
+  [mealType: string]: number | string;
+};
