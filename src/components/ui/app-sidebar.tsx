@@ -40,8 +40,8 @@ const sidebarData = [
         url: "/menu",
       },
       {
-        title: "Katalog Makanan",
-        url: "/makanan",
+        title: "Katalog Bahan Makanan",
+        url: "/food",
       },
     ],
   },
