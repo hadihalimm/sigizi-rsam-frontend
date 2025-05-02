@@ -34,3 +34,32 @@ export const formatRupiah = (value: string): string => {
   rupiah = split[1] !== undefined ? rupiah + "," + split[1] : rupiah;
   return rupiah;
 };
+
+export const pivotMealMatrix = (
+  data: MealMatrixEntry[],
+  mealTypes: MealType[],
+): MatrixRow[] => {
+  const map = new Map<string, MatrixRow>();
+
+  data.forEach((entry) => {
+    const { treatmentClass, mealType, mealCount } = entry;
+
+    if (!map.has(treatmentClass)) {
+      map.set(treatmentClass, { treatmentClass });
+    }
+
+    const row = map.get(treatmentClass)!;
+    row[mealType] = parseInt(mealCount, 10);
+  });
+
+  const result = Array.from(map.values()).map((row) => {
+    mealTypes.forEach((type) => {
+      if (!(type.code in row)) {
+        row[type.code] = 0;
+      }
+    });
+    return row;
+  });
+
+  return result;
+};
