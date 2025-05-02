@@ -62,6 +62,7 @@ const PatientPage = () => {
   const debouncedKeyword = useDebounce(keyword, 1000);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | undefined>();
+  const [allergies, setAllergies] = useState<Allergy[]>([]);
 
   const fetchPatients = async () => {
     try {
@@ -87,6 +88,20 @@ const PatientPage = () => {
     fetchPatients();
   }, [currentPage, limit, debouncedKeyword]);
 
+  useEffect(() => {
+    const fetchAllergies = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/allergy`,
+        );
+        setAllergies(res.data.data as Allergy[]);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchAllergies();
+  }, []);
+
   const columnHelper = createColumnHelper<Patient>();
   const columns: ColumnDef<Patient>[] = [
     columnHelper.accessor("id", {
@@ -111,6 +126,15 @@ const PatientPage = () => {
         const rawDate = info.getValue();
         return rawDate ? format(new Date(rawDate), "PPP", { locale: id }) : "-";
       },
+    }),
+    columnHelper.accessor("allergies", {
+      id: "allergies",
+      header: "Alergi",
+      cell: (info) =>
+        info
+          .getValue()
+          .map((allergy) => allergy.code)
+          .join(", "),
     }),
   ] as ColumnDef<Patient>[];
 
@@ -236,6 +260,7 @@ const PatientPage = () => {
             </DrawerHeader>
             <PatientForm
               initialData={selectedPatient}
+              allergies={allergies}
               onSuccess={() => {
                 setDialogOpen(false);
                 setSelectedPatient(undefined);
@@ -257,6 +282,7 @@ const PatientPage = () => {
             </DialogHeader>
             <PatientForm
               initialData={selectedPatient}
+              allergies={allergies}
               onSuccess={() => {
                 setDialogOpen(false);
                 setSelectedPatient(undefined);
