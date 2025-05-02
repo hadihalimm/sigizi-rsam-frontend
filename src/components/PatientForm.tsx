@@ -1,17 +1,19 @@
 import { cn } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
-import React, { useEffect } from "react";
 import { z } from "zod";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Save, Trash } from "lucide-react";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import toast from "react-hot-toast";
 import { DateTimePicker } from "./ui/datetime-picker";
+import MultipleSelector, { Option } from "./ui/multi-select";
+import { useState } from "react";
 
 interface PatientFormProps {
   initialData?: Patient;
+  allergies: Allergy[];
   onSuccess: () => void;
   className?: string;
 }
@@ -22,20 +24,23 @@ const formSchema = z.object({
     .min(1, { message: "Silahkan masukkan No. MR" }),
   patientName: z.string().min(1, { message: "Silahkan masukkan nama pasien" }),
   dateOfBirth: z.date(),
+  allergyIDs: z.array(z.number()),
 });
 
 const PatientForm = ({
   initialData,
+  allergies,
   onSuccess,
   className,
 }: PatientFormProps) => {
-  useEffect(() => {}, []);
-
   const form = useForm({
     defaultValues: {
       medicalRecordNumber: initialData?.medicalRecordNumber ?? "",
       patientName: initialData?.name ?? "",
-      dateOfBirth: initialData?.dateOfBirth ?? new Date(),
+      dateOfBirth: initialData?.dateOfBirth
+        ? new Date(initialData.dateOfBirth)
+        : new Date(),
+      allergyIDs: initialData?.allergies.map((allergy) => allergy.id) ?? [],
     },
     validators: {
       onSubmit: formSchema,
@@ -46,8 +51,8 @@ const PatientForm = ({
         medicalRecordNumber: value.medicalRecordNumber,
         name: value.patientName,
         dateOfBirth: `${new Date(value.dateOfBirth).toISOString()}`,
+        allergyIDs: value.allergyIDs,
       };
-      console.log(payload);
       try {
         const url = initialData
           ? `${baseUrl}/patient/${initialData.id}`
@@ -61,8 +66,10 @@ const PatientForm = ({
           `Berhasil ${initialData ? "mengubah" : "menambahkan"} data`,
         );
       } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     },
   });
@@ -81,16 +88,35 @@ const PatientForm = ({
     }
   };
 
+  const allergyOptions: Option[] = allergies.map((allergy) => ({
+    label: allergy.code,
+    value: allergy.id.toString(),
+  }));
+  const [choosenAllergy, setChoosenAllergy] = useState<Option[]>(
+    initialData?.allergies.map((allergy) => ({
+      label: allergy.code,
+      value: allergy.id.toString(),
+    })) ?? [],
+  );
+  const handleAllergyChange = (selected: Option[]) => {
+    form.setFieldValue(
+      "allergyIDs",
+      selected.map((option) => Number(option.value)),
+    );
+    setChoosenAllergy(selected);
+  };
+
   return (
     <form
       onSubmit={async (e) => {
+        console.log(form.getFieldValue("dateOfBirth"));
         e.preventDefault();
         e.stopPropagation();
         form.handleSubmit();
       }}
       className={cn("", className)}
     >
-      <div className="grid grid-cols-4 grid-rows-3 items-center gap-4 gap-x-2">
+      <div className="grid grid-cols-4 grid-rows-4 items-center gap-4 gap-x-2">
         <div>
           <Label htmlFor="medicalRecordNumber">Nomor MR</Label>
         </div>
@@ -164,6 +190,25 @@ const PatientForm = ({
                       field.handleChange(date);
                     }
                   }}
+                />
+              </div>
+            )}
+          </form.Field>
+        </div>
+
+        <div className="row-start-4">
+          <Label htmlFor="allergy">Alergi</Label>
+        </div>
+        <div className="col-span-3 row-start-4 max-h-[45px]">
+          <form.Field name="allergyIDs">
+            {() => (
+              <div>
+                <MultipleSelector
+                  value={choosenAllergy}
+                  onChange={handleAllergyChange}
+                  defaultOptions={allergyOptions}
+                  placeholder="Pilih alergi pasien..."
+                  hidePlaceholderWhenSelected
                 />
               </div>
             )}
