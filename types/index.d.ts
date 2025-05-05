@@ -34,6 +34,7 @@ interface DailyPatientMeal {
   patientID: number;
   roomID: number;
   mealTypeID: number;
+  date: Date;
   notes: string;
   createdAt: Date;
   updatedAt: Date;
@@ -81,7 +82,7 @@ interface MealMatrixEntry {
   mealCount: string;
 }
 
-type MatrixRow = {
+interface MatrixRow {
   treatmentClass: string;
   [mealType: string]: number | string;
-};
+}
