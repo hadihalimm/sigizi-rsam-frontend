@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { format } from "date-fns";
 import {
   Table,
@@ -49,6 +49,8 @@ import { id } from "date-fns/locale";
 import toast from "react-hot-toast";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { pivotMealMatrix } from "@/lib/utils";
+import { Download } from "lucide-react";
+import { Separator } from "@radix-ui/react-separator";
 
 const HomePage = () => {
   const isMobile = useIsMobile();
@@ -82,8 +84,10 @@ const HomePage = () => {
         res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/diet`);
         setDiets(res.data.data as Diet[]);
       } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     };
     fetchRequiredData();
@@ -107,8 +111,10 @@ const HomePage = () => {
       const res = await axios.get(url);
       setData(res.data.data as DailyPatientMeal[]);
     } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err));
+      }
       console.error(err);
-      toast.error(String(err));
     }
   };
 
@@ -127,6 +133,20 @@ const HomePage = () => {
       setMatrixMealCountAll(
         pivotMealMatrix(res.data.data as MealMatrixEntry[], mealTypes),
       );
+    } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err));
+      }
+      console.error(err);
+    }
+  };
+
+  const handleDownloadSpreadsheet = async () => {
+    try {
+      if (!date) return;
+      const formattedDate = format(date, "yyyy-MM-dd");
+      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/daily-patient-meal/export?date=${formattedDate}`;
+      window.location.href = url;
     } catch (err) {
       console.error(err);
       toast.error(String(err));
@@ -227,7 +247,7 @@ const HomePage = () => {
   });
 
   return (
-    <div className="mt-10 flex w-full flex-col gap-y-5 px-4">
+    <div className="my-10 mt-10 flex w-full flex-col gap-y-5 px-4">
       <div className="flex gap-x-8">
         <DateTimePicker
           value={date}
@@ -366,7 +386,8 @@ const HomePage = () => {
       )}
 
       {date && roomType && matrixMealCount.length > 0 && (
-        <div className="mt-8 flex flex-col">
+        <div className="mt-6 flex flex-col gap-y-2">
+          <Separator className="bg-primary h-[2px]" />
           <p>
             Rekapitulasi Permintaan Makanan{" "}
             <span className="bg-secondary rounded-sm p-1 font-bold">
@@ -384,6 +405,7 @@ const HomePage = () => {
                 {mealTypes.map((mt) => (
                   <TableHead key={mt.id}>{mt.code}</TableHead>
                 ))}
+                <TableHead className="bg-secondary font-bold">Total</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -396,6 +418,9 @@ const HomePage = () => {
                       {row[mt.code] || 0}
                     </TableCell>
                   ))}
+                  <TableCell className="bg-secondary font-bold">
+                    {row.total}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -404,14 +429,22 @@ const HomePage = () => {
       )}
 
       {date && roomType && matrixMealCountAll.length > 0 && (
-        <div className="flex flex-col">
-          <p>
-            Rekapitulasi Permintaan Makanan{" "}
-            <span className="bg-secondary rounded-sm p-1 font-bold">
-              Semua Ruangan
-            </span>{" "}
-            - {format(date, "PPP", { locale: id })}
-          </p>
+        <div className="flex flex-col gap-y-2">
+          <Separator className="bg-primary h-[2px]" />
+          <div className="flex items-center gap-x-4">
+            <p>
+              Rekapitulasi Permintaan Makanan{" "}
+              <span className="bg-secondary rounded-sm p-1 font-bold">
+                Semua Ruangan
+              </span>{" "}
+              - {format(date, "PPP", { locale: id })}
+            </p>
+
+            <Button onClick={handleDownloadSpreadsheet}>
+              <Download />
+              Download Spreadsheet
+            </Button>
+          </div>
 
           <Table className="w-1/3">
             <TableHeader>
@@ -420,6 +453,7 @@ const HomePage = () => {
                 {mealTypes.map((mt) => (
                   <TableHead key={mt.id}>{mt.code}</TableHead>
                 ))}
+                <TableHead className="bg-secondary font-bold">Total</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -432,6 +466,9 @@ const HomePage = () => {
                       {row[mt.code] || 0}
                     </TableCell>
                   ))}
+                  <TableCell className="bg-secondary font-bold">
+                    {row.total}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
