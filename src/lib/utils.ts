@@ -58,6 +58,14 @@ export const pivotMealMatrix = (
         row[type.code] = 0;
       }
     });
+
+    // Calculate the total for each row (treatment class)
+    const total = mealTypes.reduce((sum, type) => {
+      return sum + (Number(row[type.code]) || 0); // Explicitly convert to number
+    }, 0);
+
+    // Add total to the row
+    row["total"] = total;
     return row;
   });
 
