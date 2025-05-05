@@ -68,6 +68,7 @@ const DailyPatientMealForm = ({
         patientID: value.patientID,
         roomID: value.roomID,
         mealTypeID: value.mealTypeID,
+        date: initialData?.createdAt.toISOString() ?? new Date().toISOString(),
         notes: value.notes,
         dietIDs: value.dietIDs,
       };
