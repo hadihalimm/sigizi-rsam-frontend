@@ -50,7 +50,7 @@ const PatientForm = ({
       const payload = {
         medicalRecordNumber: value.medicalRecordNumber,
         name: value.patientName,
-        dateOfBirth: `${new Date(value.dateOfBirth).toISOString()}`,
+        dateOfBirth: value.dateOfBirth.toISOString(),
         allergyIDs: value.allergyIDs,
       };
       try {
@@ -83,8 +83,10 @@ const PatientForm = ({
       toast.success("Berhasil menghapus data pasien");
       onSuccess();
     } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err.response?.data.error));
+      }
       console.error(err);
-      toast.error(String(err));
     }
   };
 
