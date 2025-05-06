@@ -2,6 +2,17 @@ interface ResponseData<T> {
   data: T;
   message: string;
 }
+
+interface User {
+  id: number;
+  username: string;
+  name: string;
+  role: string;
+  password?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 interface MealType {
   id: number;
   code: string;
