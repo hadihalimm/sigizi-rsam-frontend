@@ -27,10 +27,13 @@ const sidebarData = [
       },
       {
         title: "Daftar Pasien",
-        url: "/patient",
+        url: "/patients",
       },
     ],
   },
+];
+
+const sidebarAdmin = [
   {
     title: "Admin",
     url: "#",
@@ -41,7 +44,11 @@ const sidebarData = [
       },
       {
         title: "Katalog Bahan Makanan",
-        url: "/food",
+        url: "/foods",
+      },
+      {
+        title: "Daftar User",
+        url: "/users",
       },
     ],
   },
@@ -63,6 +70,26 @@ const AppSidebar = () => {
       </SidebarHeader>
       <SidebarContent>
         {sidebarData.map((item) => (
+          <SidebarGroup key={item.title}>
+            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {item.items.map((item) => {
+                  const isActive = pathname === item.url;
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive}>
+                        <Link href={item.url}>{item.title}</Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+
+        {sidebarAdmin.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
