@@ -79,7 +79,7 @@ const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
       }}
       className={cn("", className)}
     >
-      <div className="grid grid-cols-4 grid-rows-4 items-center gap-4 gap-x-2">
+      <div className="grid grid-cols-4 grid-rows-4 items-center gap-x-2 gap-y-4">
         <div>
           <Label htmlFor="username">Username</Label>
         </div>
