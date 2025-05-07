@@ -343,6 +343,7 @@ const HomePage = () => {
               <DrawerDescription></DrawerDescription>
             </DrawerHeader>
             <DailyPatientMealForm
+              currentDate={date ?? new Date()}
               rooms={rooms}
               mealTypes={mealTypes}
               diets={diets}
@@ -370,6 +371,7 @@ const HomePage = () => {
               <DialogDescription></DialogDescription>
             </DialogHeader>
             <DailyPatientMealForm
+              currentDate={date ?? new Date()}
               rooms={rooms}
               mealTypes={mealTypes}
               diets={diets}
