@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "@tanstack/react-form";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import React from "react";
+import toast from "react-hot-toast";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -13,6 +15,8 @@ const loginSchema = z.object({
 });
 
 const SignInPage = () => {
+  const router = useRouter();
+
   const form = useForm({
     defaultValues: {
       username: "",
@@ -23,22 +27,26 @@ const SignInPage = () => {
     },
     onSubmit: async ({ value }) => {
       try {
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
         const res = await axios.post(
-          "http://localhost:8080/auth/sign-in",
-          value,
+          `${baseUrl}/auth/sign-in`,
           {
-            headers: {
-              "Content-Type": "application-json",
-            },
+            username: value.username,
+            password: value.password,
+          },
+          {
             withCredentials: true,
           },
         );
-        alert("Sign in success: " + res.data);
+        toast.success("Berhasil Sign in");
+        console.log(res.status);
+        router.push("/");
       } catch (err) {
         if (axios.isAxiosError(err)) {
-          const message = err.response?.data.error;
-          alert(message);
+          console.error(err);
+          alert(err);
         } else {
+          console.error(err);
           alert(err);
         }
       }
