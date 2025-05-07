@@ -18,6 +18,7 @@ import { Save, Trash } from "lucide-react";
 import MultipleSelector, { Option } from "./ui/multi-select";
 
 interface DailyPatientMealFormProps {
+  currentDate: Date;
   rooms: Room[];
   mealTypes: MealType[];
   diets: Diet[];
@@ -39,6 +40,7 @@ const formSchema = z.object({
 });
 
 const DailyPatientMealForm = ({
+  currentDate,
   rooms,
   mealTypes,
   diets,
@@ -68,10 +70,11 @@ const DailyPatientMealForm = ({
         patientID: value.patientID,
         roomID: value.roomID,
         mealTypeID: value.mealTypeID,
-        date: initialData?.createdAt.toISOString() ?? new Date().toISOString(),
+        date: initialData?.createdAt ?? currentDate,
         notes: value.notes,
         dietIDs: value.dietIDs,
       };
+      console.log(payload);
       try {
         const url = initialData
           ? `${baseUrl}/daily-patient-meal/${initialData.id}`
@@ -267,7 +270,7 @@ const DailyPatientMealForm = ({
                     value={field.state.value?.toString()}
                     onValueChange={(val) => field.handleChange(Number(val))}
                   >
-                    <SelectTrigger className="w-1/2">
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Nomor Kamar" />
                     </SelectTrigger>
                     <SelectContent>
@@ -301,7 +304,7 @@ const DailyPatientMealForm = ({
                   value={field.state.value?.toString()}
                   onValueChange={(val) => field.handleChange(Number(val))}
                 >
-                  <SelectTrigger className="w-1/2">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -318,7 +321,7 @@ const DailyPatientMealForm = ({
                     value={field.state.value?.toString()}
                     onValueChange={(val) => field.handleChange(Number(val))}
                   >
-                    <SelectTrigger className="w-1/2">
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Jenis makanan" />
                     </SelectTrigger>
                     <SelectContent>
