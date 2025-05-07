@@ -8,9 +8,14 @@ interface User {
   username: string;
   name: string;
   role: string;
-  password?: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+interface UserSession {
+  userID: number;
+  username: string;
+  role: string;
 }
 
 interface MealType {
