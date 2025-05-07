@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +15,16 @@ import {
   SidebarMenuItem,
 } from "./sidebar";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
+import { ChevronUp } from "lucide-react";
+import useSessionStore from "@/hooks/use-session";
+import axios from "axios";
 
 const sidebarData = [
   {
@@ -56,6 +66,25 @@ const sidebarAdmin = [
 
 const AppSidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, setSession, clearSession } = useSessionStore();
+
+  // useEffect(() => {
+  //   const checkSession = async () => {
+  //     try {
+  //       const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  //       const res = await axios.get(`${baseUrl}/auth/check-session`, {
+  //         withCredentials: true,
+  //       });
+  //       setSession(res.data.data as UserSession);
+  //     } catch (err) {
+  //       console.error("Error checking session: ", err);
+  //       clearSession();
+  //       router.push("/sign-in");
+  //     }
+  //   };
+  //   checkSession();
+  // }, [pathname]);
 
   return (
     <Sidebar>
@@ -109,7 +138,28 @@ const AppSidebar = () => {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter>
+        <SidebarMenu className="mb-4">
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton>
+                  {user?.username}
+                  <ChevronUp className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" className="w-[230px]">
+                <DropdownMenuItem>
+                  <span>User Detail</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 };
