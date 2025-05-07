@@ -41,7 +41,7 @@ import {
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
-const UserPage = () => {
+const UsersPage = () => {
   const isMobile = useIsMobile();
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User>();
@@ -237,4 +237,4 @@ const UserPage = () => {
   );
 };
 
-export default UserPage;
+export default UsersPage;
