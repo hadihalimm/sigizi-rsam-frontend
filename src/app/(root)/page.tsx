@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 import { format } from "date-fns";
 import {
   Table,
@@ -51,6 +51,8 @@ import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { pivotMealMatrix } from "@/lib/utils";
 import { Download } from "lucide-react";
 import { Separator } from "@radix-ui/react-separator";
+import NotificationDropdown from "@/components/NotificationDropdown";
+import api from "@/lib/axios";
 
 const HomePage = () => {
   const isMobile = useIsMobile();
@@ -67,21 +69,18 @@ const HomePage = () => {
   >();
   const [matrixMealCount, setMatrixMealCount] = useState<MatrixRow[]>([]);
   const [matrixMealCountAll, setMatrixMealCountAll] = useState<MatrixRow[]>([]);
+  const [openDropdownLog, setOpenDropdownLog] = useState(false);
 
   useEffect(() => {
     const fetchRequiredData = async () => {
       try {
-        let res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/room-type`,
-        );
+        let res = await api.get("/room-type");
         setRoomTypes(res.data.data as RoomType[]);
 
-        res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/meal-type`,
-        );
+        res = await api.get("/meal-type");
         setMealTypes(res.data.data as MealType[]);
 
-        res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/diet`);
+        res = await api.get("/diet");
         setDiets(res.data.data as Diet[]);
       } catch (err) {
         if (isAxiosError(err)) {
@@ -95,9 +94,7 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchRoomsBasedOnRoomType = async () => {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/room/filter?roomType=${roomType}`,
-      );
+      const res = await api.get(`/room/filter?roomType=${roomType}`);
       setRooms(res.data.data as Room[]);
     };
     fetchRoomsBasedOnRoomType();
@@ -107,8 +104,9 @@ const HomePage = () => {
     try {
       if (!date) return;
       const formattedDate = format(date, "yyyy-MM-dd");
-      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/daily-patient-meal/filter?date=${formattedDate}&roomType=${roomType}`;
-      const res = await axios.get(url);
+      const res = await api.get(
+        `/daily-patient-meal/filter?date=${formattedDate}&roomType=${roomType}`,
+      );
       setData(res.data.data as DailyPatientMeal[]);
     } catch (err) {
       if (isAxiosError(err)) {
@@ -122,14 +120,16 @@ const HomePage = () => {
     try {
       if (!date || mealTypes.length === 0) return;
       const formattedDate = format(date, "yyyy-MM-dd");
-      let url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/daily-patient-meal/count?date=${formattedDate}&roomType=${roomType}`;
-      let res = await axios.get(url);
+      let res = await api.get(
+        `/daily-patient-meal/count?date=${formattedDate}&roomType=${roomType}`,
+      );
       setMatrixMealCount(
         pivotMealMatrix(res.data.data as MealMatrixEntry[], mealTypes),
       );
 
-      url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/daily-patient-meal/count?date=${formattedDate}&roomType=`;
-      res = await axios.get(url);
+      res = await api.get(
+        `/daily-patient-meal/count?date=${formattedDate}&roomType=`,
+      );
       setMatrixMealCountAll(
         pivotMealMatrix(res.data.data as MealMatrixEntry[], mealTypes),
       );
@@ -259,7 +259,7 @@ const HomePage = () => {
           value={String(roomType)}
           onValueChange={(val) => setRoomType(Number(val))}
         >
-          <SelectTrigger className="">
+          <SelectTrigger>
             <SelectValue placeholder="Jenis Ruangan..." />
           </SelectTrigger>
           <SelectContent>
@@ -273,62 +273,79 @@ const HomePage = () => {
       </div>
 
       {roomType && (
-        <Button
-          className="w-[150px]"
-          onClick={() => {
-            setSelectedDailyMeal(undefined);
-            setDialogOpen(true);
-          }}
-        >
-          Tambah Entri
-        </Button>
+        <div className="flex justify-between">
+          <Button
+            className="w-[150px]"
+            onClick={() => {
+              setSelectedDailyMeal(undefined);
+              setDialogOpen(true);
+            }}
+          >
+            Tambah Entri
+          </Button>
+          <NotificationDropdown
+            open={openDropdownLog}
+            setOpen={setOpenDropdownLog}
+            date={date!}
+            roomType={roomType}
+            rooms={rooms}
+            mealTypes={mealTypes}
+            diets={diets}
+            dailyData={data}
+          />
+        </div>
       )}
 
       {(!date || !roomType) && <p>Silahkan pilih tanggal dan tipe ruangan</p>}
       {date && roomType && data.length === 0 && <p>Tidak ada data</p>}
 
       {roomType && data.length > 0 && (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {table.getFlatHeaders().map((header) => (
-                <TableHead
-                  key={header.id}
-                  className="truncate whitespace-normal"
-                  style={{
-                    width: `${header.getSize()}px`,
-                    minWidth: `${header.getSize()}px`,
-                    maxWidth: `${header.getSize()}px`,
-                  }}
-                >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext(),
-                  )}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                onClick={() => {
-                  setSelectedDailyMeal(row.original);
-                  setDialogOpen(true);
-                }}
-                className="cursor-pointer"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} suppressHydrationWarning>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {table.getFlatHeaders().map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className="truncate py-2 whitespace-normal"
+                    style={{
+                      width: `${header.getSize()}px`,
+                      minWidth: `${header.getSize()}px`,
+                      maxWidth: `${header.getSize()}px`,
+                    }}
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+                  </TableHead>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  onClick={() => {
+                    setSelectedDailyMeal(row.original);
+                    setDialogOpen(true);
+                  }}
+                  className="cursor-pointer"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} suppressHydrationWarning>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
 
       {isMobile ? (
