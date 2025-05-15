@@ -15,6 +15,7 @@ interface User {
 interface UserSession {
   userID: number;
   username: string;
+  name: string;
   role: string;
 }
 
@@ -58,6 +59,20 @@ interface DailyPatientMeal {
   room: Room;
   mealType: MealType;
   diets: Diet[];
+}
+
+interface DailyPatientMealLog {
+  id: number;
+  dailyPatientMealID: number;
+  roomID: number;
+  roomNumber: string;
+  patientMRN: string;
+  patientName: string;
+  field: string;
+  oldValue: string;
+  newValue: string;
+  changedAt: Date;
+  date: Date;
 }
 
 interface Food {
