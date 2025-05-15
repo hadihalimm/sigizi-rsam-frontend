@@ -253,7 +253,7 @@ const DailyPatientMealForm = ({
                   value={field.state.value?.toString()}
                   onValueChange={(val) => field.handleChange(Number(val))}
                 >
-                  <SelectTrigger className="w-1/2">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -310,7 +310,7 @@ const DailyPatientMealForm = ({
                   <SelectContent>
                     {mealTypes.map((mt) => (
                       <SelectItem key={mt.id} value={mt.id.toString()}>
-                        {mt.name}
+                        {mt.code}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -327,7 +327,7 @@ const DailyPatientMealForm = ({
                     <SelectContent>
                       {mealTypes.map((mt) => (
                         <SelectItem key={mt.id} value={mt.id.toString()}>
-                          {mt.name}
+                          {mt.code}
                         </SelectItem>
                       ))}
                     </SelectContent>
