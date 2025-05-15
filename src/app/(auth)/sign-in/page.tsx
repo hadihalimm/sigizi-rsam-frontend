@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import useSessionStore from "@/hooks/use-session";
 import { useForm } from "@tanstack/react-form";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -16,6 +17,7 @@ const loginSchema = z.object({
 
 const SignInPage = () => {
   const router = useRouter();
+  const { setSession } = useSessionStore();
 
   const form = useForm({
     defaultValues: {
@@ -38,16 +40,16 @@ const SignInPage = () => {
             withCredentials: true,
           },
         );
+        setSession(res.data.data as UserSession);
         toast.success("Berhasil Sign in");
-        console.log(res.status);
         router.push("/");
       } catch (err) {
         if (axios.isAxiosError(err)) {
           console.error(err);
-          alert(err);
+          toast.error(String(err.message));
         } else {
           console.error(err);
-          alert(err);
+          toast.error(String(err));
         }
       }
     },
