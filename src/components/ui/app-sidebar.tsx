@@ -1,7 +1,6 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +24,7 @@ import {
 import { ChevronUp } from "lucide-react";
 import useSessionStore from "@/hooks/use-session";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const sidebarData = [
   {
@@ -67,24 +67,24 @@ const sidebarAdmin = [
 const AppSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, setSession, clearSession } = useSessionStore();
+  const { user, clearSession } = useSessionStore();
 
-  // useEffect(() => {
-  //   const checkSession = async () => {
-  //     try {
-  //       const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  //       const res = await axios.get(`${baseUrl}/auth/check-session`, {
-  //         withCredentials: true,
-  //       });
-  //       setSession(res.data.data as UserSession);
-  //     } catch (err) {
-  //       console.error("Error checking session: ", err);
-  //       clearSession();
-  //       router.push("/sign-in");
-  //     }
-  //   };
-  //   checkSession();
-  // }, [pathname]);
+  const handleLogout = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      const res = await axios.post(`${baseUrl}/auth/logout`, null, {
+        withCredentials: true,
+      });
+      console.log(res.status);
+      clearSession();
+      toast.success(res.data.message);
+      router.push("/sign-in");
+    } catch (err) {
+      console.error("Error checking session: ", err);
+      clearSession();
+      router.push("/sign-in");
+    }
+  };
 
   return (
     <Sidebar>
@@ -149,10 +149,12 @@ const AppSidebar = () => {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" className="w-[230px]">
-                <DropdownMenuItem>
-                  <span>User Detail</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
+                <Link href="/user">
+                  <DropdownMenuItem>
+                    <span>User Detail</span>
+                  </DropdownMenuItem>
+                </Link>
+                <DropdownMenuItem onClick={handleLogout}>
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
