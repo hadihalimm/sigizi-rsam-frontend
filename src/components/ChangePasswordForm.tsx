@@ -24,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import useSessionStore from "@/hooks/use-session";
 
 interface ChangePasswordFormProps {
   open: boolean;
@@ -49,6 +50,7 @@ const ChangePasswordForm = ({
   open,
   onOpenChange,
 }: ChangePasswordFormProps) => {
+  const { user } = useSessionStore();
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
@@ -65,10 +67,11 @@ const ChangePasswordForm = ({
         password: value.password,
       };
       try {
-        const url = `${baseUrl}/user/actions/change-password`;
+        const url = `${baseUrl}/user/${user?.userID}/actions/change-password`;
         const res = await axios.post(url, payload);
         console.log(res.status);
-        toast.success(`Berhasil menambahkan user`);
+        toast.success(`[${res.status}] Berhasil mengganti password`);
+        onOpenChange(false);
       } catch (err) {
         console.error(err);
         toast.error(String(err));
