@@ -8,7 +8,7 @@ export default function HomeLayout({
     <SidebarProvider>
       <AppSidebar />
       <main>
-        <SidebarTrigger />
+        <SidebarTrigger className="text-secondary bg-primary mx-4 my-2" />
         {children}
       </main>
     </SidebarProvider>
