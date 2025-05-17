@@ -2,7 +2,6 @@ import React from "react";
 import { z } from "zod";
 import { UserRole } from "./UserForm";
 import { useForm } from "@tanstack/react-form";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { Label } from "./ui/label";
@@ -16,6 +15,7 @@ import {
 } from "./ui/select";
 import { Button } from "./ui/button";
 import { Save } from "lucide-react";
+import api from "@/lib/axios";
 
 interface RegisterFormProps {
   onSuccess: () => void;
@@ -48,7 +48,6 @@ const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const payload = {
         username: value.username,
         name: value.name,
@@ -57,10 +56,10 @@ const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
       };
       console.log(value);
       try {
-        const url = `${baseUrl}/auth/register`;
+        const url = `/auth/register`;
         const method = "post";
 
-        const res = await axios[method](url, payload);
+        const res = await api[method](url, payload);
         console.log(res.status);
         onSuccess();
         toast.success(`Berhasil menambahkan user`);

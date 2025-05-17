@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useIsMobile } from "@/hooks/use-mobile";
+import api from "@/lib/axios";
 import { generatePagination } from "@/lib/utils";
 import {
   ColumnDef,
@@ -46,7 +47,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import axios from "axios";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import React, { useEffect, useState } from "react";
@@ -66,16 +66,13 @@ const PatientPage = () => {
 
   const fetchPatients = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/patient/paginated`,
-        {
-          params: {
-            page: currentPage,
-            limit,
-            keyword: debouncedKeyword,
-          },
+      const res = await api.get(`/patient/paginated`, {
+        params: {
+          page: currentPage,
+          limit,
+          keyword: debouncedKeyword,
         },
-      );
+      });
       setPatients(res.data.data as Patient[]);
       setTotalPatient(res.data.total);
       setTotalPages(res.data.totalPages);
@@ -91,9 +88,7 @@ const PatientPage = () => {
   useEffect(() => {
     const fetchAllergies = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/allergy`,
-        );
+        const res = await api.get(`/allergy`);
         setAllergies(res.data.data as Allergy[]);
       } catch (err) {
         console.error(err);
@@ -172,7 +167,7 @@ const PatientPage = () => {
         Tambah Pasien
       </Button>
 
-      <Table>
+      <Table className="w-[50vw] table-fixed">
         <TableCaption>Total: {totalPatient}</TableCaption>
         <TableHeader>
           <TableRow>

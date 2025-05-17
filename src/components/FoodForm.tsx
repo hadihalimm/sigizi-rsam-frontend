@@ -5,9 +5,9 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Save, Trash } from "lucide-react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import api from "@/lib/axios";
 
 interface FoodFormProps {
   initialData?: Food;
@@ -32,7 +32,6 @@ const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const payload = {
         name: value.name,
         unit: value.unit,
@@ -41,12 +40,10 @@ const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
       console.log(value);
 
       try {
-        const url = initialData
-          ? `${baseUrl}/food/${initialData.id}`
-          : `${baseUrl}/food`;
+        const url = initialData ? `/food/${initialData.id}` : `/food`;
         const method = initialData ? "patch" : "post";
 
-        const res = await axios[method](url, payload);
+        const res = await api[method](url, payload);
         console.log(res.status);
         onSuccess();
         toast.success(
@@ -61,9 +58,7 @@ const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
 
   const onDelete = async (id: number) => {
     try {
-      const res = await axios.delete(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food/${id}`,
-      );
+      const res = await api.delete(`/food/${id}`);
       console.log(res.status);
       toast.success("Berhasil menghapus data makanan");
       onSuccess();

@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
-import axios from "axios";
+import api from "@/lib/axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -19,9 +19,7 @@ const MenuPage = () => {
   useEffect(() => {
     const fetchMealType = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/meal-type`,
-        );
+        const res = await api.get(`/meal-type`);
         setMealTypes(res.data.data as MealType[]);
       } catch (err) {
         console.error(err);

@@ -50,9 +50,9 @@ import toast from "react-hot-toast";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { pivotMealMatrix } from "@/lib/utils";
 import { Download } from "lucide-react";
-import { Separator } from "@radix-ui/react-separator";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import api from "@/lib/axios";
+import { Card } from "@/components/ui/card";
 
 const HomePage = () => {
   const isMobile = useIsMobile();
@@ -85,6 +85,8 @@ const HomePage = () => {
       } catch (err) {
         if (isAxiosError(err)) {
           toast.error(String(err));
+          console.error("Axios error status:", err.response?.status);
+          console.error("Axios error data:", err.response?.data);
         }
         console.error(err);
       }
@@ -165,13 +167,13 @@ const HomePage = () => {
       id: "medicalRecordNumber",
       header: "Nomor MR",
       cell: (info) => info.getValue(),
-      size: 90,
+      size: 70,
     }),
     columnHelper.accessor("patient.name", {
       id: "patientName",
       header: "Nama Pasien",
       cell: (info) => info.getValue(),
-      size: 150,
+      size: 120,
     }),
     columnHelper.accessor("patient.dateOfBirth", {
       id: "patientDateOfBirth",
@@ -180,25 +182,25 @@ const HomePage = () => {
         const rawDate = info.getValue();
         return rawDate ? format(new Date(rawDate), "PPP", { locale: id }) : "-";
       },
-      size: 120,
+      size: 100,
     }),
     columnHelper.accessor("room.roomNumber", {
       id: "roomNumber",
       header: "No. Kamar",
       cell: (info) => info.getValue(),
-      size: 70,
+      size: 60,
     }),
     columnHelper.accessor("room.treatmentClass", {
       id: "treatmentClass",
       header: "Kelas Perawatan",
       cell: (info) => info.getValue(),
-      size: 100,
+      size: 60,
     }),
     columnHelper.accessor("mealType.code", {
       id: "mealTypeCode",
       header: "Jenis Makanan",
       cell: (info) => info.getValue(),
-      size: 100,
+      size: 60,
     }),
     columnHelper.accessor("diets", {
       id: "diets",
@@ -208,7 +210,7 @@ const HomePage = () => {
           .getValue()
           .map((diet) => diet.code)
           .join(", "),
-      size: 100,
+      size: 180,
     }),
     columnHelper.accessor("patient.allergies", {
       id: "patientAllergies",
@@ -247,106 +249,115 @@ const HomePage = () => {
   });
 
   return (
-    <div className="my-10 mt-10 flex w-full flex-col gap-y-5 px-4">
-      <div className="flex gap-x-8">
-        <DateTimePicker
-          value={date}
-          onChange={setDate}
-          className="w-[250px]"
-          granularity="day"
-        />
-        <Select
-          value={String(roomType)}
-          onValueChange={(val) => setRoomType(Number(val))}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Jenis Ruangan..." />
-          </SelectTrigger>
-          <SelectContent>
-            {roomTypes.map((room) => (
-              <SelectItem key={room.id} value={room.id.toString()}>
-                {room.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {roomType && (
-        <div className="flex justify-between">
-          <Button
-            className="w-[150px]"
-            onClick={() => {
-              setSelectedDailyMeal(undefined);
-              setDialogOpen(true);
-            }}
-          >
-            Tambah Entri
-          </Button>
-          <NotificationDropdown
-            open={openDropdownLog}
-            setOpen={setOpenDropdownLog}
-            date={date!}
-            roomType={roomType}
-            rooms={rooms}
-            mealTypes={mealTypes}
-            diets={diets}
-            dailyData={data}
+    <div className="my-8 flex w-full flex-col gap-y-5 px-4">
+      <Card className="px-4 py-4">
+        <h1 className="text-primary w-fit text-2xl font-bold">
+          Tabel Permintaan Makanan
+        </h1>
+        <div className="flex gap-x-8">
+          <DateTimePicker
+            value={date}
+            onChange={setDate}
+            className="w-[250px]"
+            granularity="day"
           />
+          <Select
+            value={String(roomType)}
+            onValueChange={(val) => setRoomType(Number(val))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Jenis Ruangan..." />
+            </SelectTrigger>
+            <SelectContent>
+              {roomTypes.map((room) => (
+                <SelectItem key={room.id} value={room.id.toString()}>
+                  {room.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      )}
 
-      {(!date || !roomType) && <p>Silahkan pilih tanggal dan tipe ruangan</p>}
-      {date && roomType && data.length === 0 && <p>Tidak ada data</p>}
+        {roomType && (
+          <div className="flex justify-between">
+            <Button
+              className="w-[150px]"
+              onClick={() => {
+                setSelectedDailyMeal(undefined);
+                setDialogOpen(true);
+              }}
+            >
+              Tambah Entri
+            </Button>
+            <NotificationDropdown
+              open={openDropdownLog}
+              setOpen={setOpenDropdownLog}
+              date={date!}
+              roomType={roomType}
+              rooms={rooms}
+              mealTypes={mealTypes}
+              diets={diets}
+              dailyData={data}
+            />
+          </div>
+        )}
 
-      {roomType && data.length > 0 && (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {table.getFlatHeaders().map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="truncate py-2 whitespace-normal"
-                    style={{
-                      width: `${header.getSize()}px`,
-                      minWidth: `${header.getSize()}px`,
-                      maxWidth: `${header.getSize()}px`,
-                    }}
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
+        {(!date || !roomType) && <p>Silahkan pilih tanggal dan tipe ruangan</p>}
+        {date && roomType && data.length === 0 && <p>Tidak ada data</p>}
 
-            <TableBody>
-              {table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  onClick={() => {
-                    setSelectedDailyMeal(row.original);
-                    setDialogOpen(true);
-                  }}
-                  className="cursor-pointer"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} suppressHydrationWarning>
+        {roomType && data.length > 0 && (
+          <div className="border-primary/70 rounded-md border">
+            <Table className="table-fixed">
+              <TableHeader>
+                <TableRow>
+                  {table.getFlatHeaders().map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className="bg-primary/50 truncate py-2 font-semibold whitespace-normal"
+                      style={{
+                        width: `${header.getSize()}px`,
+                        minWidth: `${header.getSize()}px`,
+                        maxWidth: `${header.getSize()}px`,
+                      }}
+                    >
                       {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
+                        header.column.columnDef.header,
+                        header.getContext(),
                       )}
-                    </TableCell>
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+              </TableHeader>
+
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    onClick={() => {
+                      setSelectedDailyMeal(row.original);
+                      setDialogOpen(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        suppressHydrationWarning
+                        className="truncate"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </Card>
 
       {isMobile ? (
         <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -405,11 +416,10 @@ const HomePage = () => {
       )}
 
       {date && roomType && matrixMealCount.length > 0 && (
-        <div className="mt-6 flex flex-col gap-y-2">
-          <Separator className="bg-primary h-[2px]" />
+        <Card className="flex w-fit flex-col gap-y-2 px-4 py-4">
           <p>
             Rekapitulasi Permintaan Makanan{" "}
-            <span className="bg-secondary rounded-sm p-1 font-bold">
+            <span className="bg-primary rounded-sm p-1 font-bold">
               {roomTypes.find((rt) => rt.id === roomType)?.name}
             </span>{" "}
             - {format(date, "PPP", { locale: id })}
@@ -424,7 +434,7 @@ const HomePage = () => {
                 {mealTypes.map((mt) => (
                   <TableHead key={mt.id}>{mt.code}</TableHead>
                 ))}
-                <TableHead className="bg-secondary font-bold">Total</TableHead>
+                <TableHead className="bg-primary font-bold">Total</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -437,23 +447,22 @@ const HomePage = () => {
                       {row[mt.code] || 0}
                     </TableCell>
                   ))}
-                  <TableCell className="bg-secondary font-bold">
+                  <TableCell className="bg-primary font-bold">
                     {row.total}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </div>
+        </Card>
       )}
 
       {date && roomType && matrixMealCountAll.length > 0 && (
-        <div className="flex flex-col gap-y-2">
-          <Separator className="bg-primary h-[2px]" />
+        <Card className="gap-y- flex w-fit flex-col px-4 py-4">
           <div className="flex items-center gap-x-4">
             <p>
               Rekapitulasi Permintaan Makanan{" "}
-              <span className="bg-secondary rounded-sm p-1 font-bold">
+              <span className="bg-primary rounded-sm p-1 font-bold">
                 Semua Ruangan
               </span>{" "}
               - {format(date, "PPP", { locale: id })}
@@ -461,7 +470,7 @@ const HomePage = () => {
 
             <Button onClick={handleDownloadSpreadsheet}>
               <Download />
-              Download Spreadsheet
+              Spreadsheet
             </Button>
           </div>
 
@@ -472,7 +481,7 @@ const HomePage = () => {
                 {mealTypes.map((mt) => (
                   <TableHead key={mt.id}>{mt.code}</TableHead>
                 ))}
-                <TableHead className="bg-secondary font-bold">Total</TableHead>
+                <TableHead className="bg-primary font-bold">Total</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -485,14 +494,14 @@ const HomePage = () => {
                       {row[mt.code] || 0}
                     </TableCell>
                   ))}
-                  <TableCell className="bg-secondary font-bold">
+                  <TableCell className="bg-primary font-bold">
                     {row.total}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </div>
+        </Card>
       )}
     </div>
   );

@@ -12,8 +12,8 @@ import {
 } from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 import { useForm } from "@tanstack/react-form";
-import axios from "axios";
 import toast from "react-hot-toast";
+import api from "@/lib/axios";
 
 interface ResetPasswordDialogProps {
   user: User;
@@ -24,10 +24,9 @@ const ResetPasswordDialog = ({ user, onConfirm }: ResetPasswordDialogProps) => {
   const form = useForm({
     defaultValues: {},
     onSubmit: async () => {
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       try {
-        const url = `${baseUrl}/user/${user.id}/actions/reset-password`;
-        const res = await axios.post(url);
+        const url = `/user/${user.id}/actions/reset-password`;
+        const res = await api.post(url);
         console.log(res.data.data);
         onConfirm();
         toast.success(`Berhasil reset password`);

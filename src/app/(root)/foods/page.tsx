@@ -28,6 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useIsMobile } from "@/hooks/use-mobile";
+import api from "@/lib/axios";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -38,7 +39,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -56,9 +56,7 @@ const FoodPage = () => {
 
   const fetchFoods = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/food`,
-      );
+      const res = await api.get(`/food`);
       setFoods(res.data.data as Food[]);
     } catch (err) {
       console.error(err);

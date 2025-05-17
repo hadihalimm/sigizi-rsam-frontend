@@ -12,10 +12,11 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Button } from "./ui/button";
-import axios, { AxiosError, isAxiosError } from "axios";
+import { AxiosError, isAxiosError } from "axios";
 import toast from "react-hot-toast";
 import { Save, Trash } from "lucide-react";
 import MultipleSelector, { Option } from "./ui/multi-select";
+import api from "@/lib/axios";
 
 interface DailyPatientMealFormProps {
   currentDate: Date;
@@ -65,7 +66,6 @@ const DailyPatientMealForm = ({
     onSubmit: async ({ value }) => {
       if (isPatientNotExists) return;
 
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const payload = {
         patientID: value.patientID,
         roomID: value.roomID,
@@ -77,12 +77,12 @@ const DailyPatientMealForm = ({
       console.log(payload);
       try {
         const url = initialData
-          ? `${baseUrl}/daily-patient-meal/${initialData.id}`
-          : `${baseUrl}/daily-patient-meal`;
+          ? `/daily-patient-meal/${initialData.id}`
+          : `/daily-patient-meal`;
 
         const method = initialData ? "patch" : "post";
 
-        const res = await axios[method](url, payload);
+        const res = await api[method](url, payload);
         console.log(res.status);
         onSuccess();
         toast.success(
@@ -99,9 +99,7 @@ const DailyPatientMealForm = ({
 
   const onDelete = async (id: number) => {
     try {
-      const res = await axios.delete(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/daily-patient-meal/${id}`,
-      );
+      const res = await api.delete(`/daily-patient-meal/${id}`);
       console.log(res.status);
       toast.success("Berhasil menghapus data");
       onSuccess();
@@ -134,9 +132,7 @@ const DailyPatientMealForm = ({
   const [isPatientNotExists, setIsPatientNotExists] = useState(false);
   const checkPatientExists = async (medicalRecordNumber: string) => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/patient/filter?mrn=${medicalRecordNumber}`,
-      );
+      const res = await api.get(`/patient/filter?mrn=${medicalRecordNumber}`);
       const data = res.data.data as Patient;
       form.setFieldValue("patientID", data.id);
       form.setFieldValue("patientName", data.name);

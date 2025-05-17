@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useSessionStore from "@/hooks/use-session";
+import api from "@/lib/axios";
 import { useForm } from "@tanstack/react-form";
-import axios from "axios";
 import { Save } from "lucide-react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
@@ -27,13 +27,12 @@ const UserPage = () => {
     },
     onSubmit: async ({ value }) => {
       console.log(value);
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const payload = {
         name: value.name,
       };
       try {
-        const url = `${baseUrl}/user/${user?.userID}/actions/change-name`;
-        const res = await axios.post(url, payload);
+        const url = `/user/${user?.userID}/actions/change-name`;
+        const res = await api.post(url, payload);
         toast.success(`[${res.status}] Berhasil mengganti nama`);
       } catch (err) {
         console.error(err);

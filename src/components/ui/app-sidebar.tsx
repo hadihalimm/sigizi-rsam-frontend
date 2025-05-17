@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -21,10 +22,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp, Contact, Table } from "lucide-react";
 import useSessionStore from "@/hooks/use-session";
-import axios from "axios";
 import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import { isAxiosError } from "axios";
 
 const sidebarData = [
   {
@@ -34,10 +36,12 @@ const sidebarData = [
       {
         title: "Permintaan Makanan",
         url: "/",
+        icon: Table,
       },
       {
         title: "Daftar Pasien",
         url: "/patients",
+        icon: Contact,
       },
     ],
   },
@@ -67,12 +71,28 @@ const sidebarAdmin = [
 const AppSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, clearSession } = useSessionStore();
+  const { user, setSession, clearSession } = useSessionStore();
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const res = await api.get(`/auth/check-session`);
+        setSession(res.data.data as UserSession);
+      } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(err.response?.data);
+          console.error(err);
+        } else {
+          console.error(err);
+        }
+      }
+    };
+    fetchSession();
+  }, [pathname]);
 
   const handleLogout = async () => {
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-      const res = await axios.post(`${baseUrl}/auth/logout`, null, {
+      const res = await api.post(`/auth/logout`, null, {
         withCredentials: true,
       });
       console.log(res.status);
@@ -91,8 +111,10 @@ const AppSidebar = () => {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarGroup>
-            <SidebarMenuItem>
-              <p className="text-center text-2xl font-bold">SIGIZI RSAM</p>
+            <SidebarMenuItem className="flex items-center justify-center">
+              <p className="text-foreground bg-primary font-merriweather w-fit rounded-md p-2 text-2xl font-extrabold">
+                SIGIZI RSAM
+              </p>
             </SidebarMenuItem>
           </SidebarGroup>
         </SidebarMenu>
@@ -108,7 +130,10 @@ const AppSidebar = () => {
                   return (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild isActive={isActive}>
-                        <Link href={item.url}>{item.title}</Link>
+                        <Link href={item.url}>
+                          <item.icon />
+                          {item.title}
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
@@ -144,7 +169,7 @@ const AppSidebar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  {user?.username}
+                  {user?.name}
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>

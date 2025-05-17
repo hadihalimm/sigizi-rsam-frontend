@@ -13,9 +13,9 @@ import {
 } from "./ui/select";
 import { Button } from "./ui/button";
 import { Save, Trash } from "lucide-react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import ResetPasswordDialog from "./ResetPasswordDialog";
+import api from "@/lib/axios";
 
 interface UserFormProps {
   initialData?: User;
@@ -48,7 +48,6 @@ const UserForm = ({ initialData, onSuccess, className }: UserFormProps) => {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const payload = {
         username: value.username,
         name: value.name,
@@ -56,10 +55,10 @@ const UserForm = ({ initialData, onSuccess, className }: UserFormProps) => {
       };
       console.log(value);
       try {
-        const url = `${baseUrl}/user/${initialData?.id}`;
+        const url = `/user/${initialData?.id}`;
         const method = "patch";
 
-        const res = await axios[method](url, payload);
+        const res = await api[method](url, payload);
         console.log(res.status);
         onSuccess();
         toast.success(`Berhasil mengubah data`);
@@ -72,9 +71,7 @@ const UserForm = ({ initialData, onSuccess, className }: UserFormProps) => {
 
   const onDelete = async (id: number) => {
     try {
-      const res = await axios.delete(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/${id}`,
-      );
+      const res = await api.delete(`/user/${id}`);
       console.log(res.status);
       toast.success("Berhasil menghapus user");
       onSuccess();

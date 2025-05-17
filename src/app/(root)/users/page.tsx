@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/table";
 import UserForm from "@/components/UserForm";
 import { useIsMobile } from "@/hooks/use-mobile";
+import api from "@/lib/axios";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -38,7 +39,6 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 const UsersPage = () => {
@@ -48,9 +48,7 @@ const UsersPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user`,
-      );
+      const res = await api.get(`/user`);
       setUsers(res.data.data as User[]);
     } catch (err) {
       console.error(err);
@@ -138,7 +136,7 @@ const UsersPage = () => {
         Tambah User
       </Button>
 
-      <Table>
+      <Table className="w-[35vw] table-fixed">
         <TableCaption>Total: {users.length}</TableCaption>
         <TableHeader>
           <TableRow>

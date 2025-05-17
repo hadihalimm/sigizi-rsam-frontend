@@ -18,6 +18,7 @@ import axios, { isAxiosError } from "axios";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 import { id } from "date-fns/locale";
+import api from "@/lib/axios";
 
 interface NotificationDropdownProps {
   open: boolean;
@@ -47,8 +48,9 @@ const NotificationDropdown = ({
   const fetchLogs = async () => {
     try {
       const formattedDate = format(date, "yyyy-MM-dd");
-      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/daily-patient-meal/logs?date=${formattedDate}&roomType=${roomType}`;
-      const res = await axios.get(url);
+      const res = await api.get(
+        `daily-patient-meal/logs?date=${formattedDate}&roomType=${roomType}`,
+      );
       setLogs(res.data.data as DailyPatientMealLog[]);
     } catch (err) {
       if (isAxiosError(err)) {
@@ -68,7 +70,10 @@ const NotificationDropdown = ({
           <Bell />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="h-[400px] w-[300px]">
+      <DropdownMenuContent
+        className="h-[400px] w-[300px] overflow-x-scroll"
+        align="end"
+      >
         <DropdownMenuLabel>Update Logs</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup className="space-y-4 px-2">

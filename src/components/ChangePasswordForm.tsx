@@ -7,7 +7,6 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import axios from "axios";
 import toast from "react-hot-toast";
 import {
   Drawer,
@@ -25,6 +24,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import useSessionStore from "@/hooks/use-session";
+import api from "@/lib/axios";
 
 interface ChangePasswordFormProps {
   open: boolean;
@@ -62,13 +62,12 @@ const ChangePasswordForm = ({
     },
     onSubmit: async ({ value }) => {
       console.log(value);
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const payload = {
         password: value.password,
       };
       try {
-        const url = `${baseUrl}/user/${user?.userID}/actions/change-password`;
-        const res = await axios.post(url, payload);
+        const url = `/user/${user?.userID}/actions/change-password`;
+        const res = await api.post(url, payload);
         console.log(res.status);
         toast.success(`[${res.status}] Berhasil mengganti password`);
         onOpenChange(false);

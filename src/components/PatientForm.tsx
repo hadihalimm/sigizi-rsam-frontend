@@ -5,11 +5,12 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Save, Trash } from "lucide-react";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 import toast from "react-hot-toast";
 import { DateTimePicker } from "./ui/datetime-picker";
 import MultipleSelector, { Option } from "./ui/multi-select";
 import { useState } from "react";
+import api from "@/lib/axios";
 
 interface PatientFormProps {
   initialData?: Patient;
@@ -46,7 +47,6 @@ const PatientForm = ({
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const payload = {
         medicalRecordNumber: value.medicalRecordNumber,
         name: value.patientName,
@@ -54,12 +54,10 @@ const PatientForm = ({
         allergyIDs: value.allergyIDs,
       };
       try {
-        const url = initialData
-          ? `${baseUrl}/patient/${initialData.id}`
-          : `${baseUrl}/patient`;
+        const url = initialData ? `/patient/${initialData.id}` : `/patient`;
         const method = initialData ? "patch" : "post";
 
-        const res = await axios[method](url, payload);
+        const res = await api[method](url, payload);
         console.log(res.status);
         onSuccess();
         toast.success(
@@ -76,9 +74,7 @@ const PatientForm = ({
 
   const onDelete = async (id: number) => {
     try {
-      const res = await axios.delete(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/patient/${id}`,
-      );
+      const res = await api.delete(`/patient/${id}`);
       console.log(res.status);
       toast.success("Berhasil menghapus data pasien");
       onSuccess();
