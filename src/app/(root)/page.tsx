@@ -306,7 +306,7 @@ const HomePage = () => {
         {date && roomType && data.length === 0 && <p>Tidak ada data</p>}
 
         {roomType && data.length > 0 && (
-          <div className="border-primary/70 rounded-md border">
+          <div className="border-primary/70 overflow-hidden rounded-md border">
             <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
