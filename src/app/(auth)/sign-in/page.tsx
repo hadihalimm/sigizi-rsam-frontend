@@ -72,6 +72,7 @@ const SignInPage = () => {
         width={900}
         height={900}
         className="absolute z-0"
+        priority
       />
       <Card className="z-10 w-[350px]">
         <CardHeader>
