@@ -85,6 +85,7 @@ const DietForm = ({ initialData, onSuccess, className }: DietFormProps) => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   id="name"
+                  placeholder="Kode diet..."
                 />
                 {field.state.meta.isValid &&
                   field.state.meta.errors.map((err, idx) => (
@@ -109,6 +110,7 @@ const DietForm = ({ initialData, onSuccess, className }: DietFormProps) => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   id="name"
+                  placeholder="Nama diet..."
                 />
                 {field.state.meta.isValid &&
                   field.state.meta.errors.map((err, idx) => (
