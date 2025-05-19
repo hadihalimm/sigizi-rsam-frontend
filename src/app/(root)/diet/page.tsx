@@ -39,7 +39,7 @@ import {
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const DietsPage = () => {
+const DietPage = () => {
   const isMobile = useIsMobile();
   const [diets, setDiets] = useState<Diet[]>([]);
   const [selectedDiet, setSelectedDiet] = useState<Diet>();
@@ -189,4 +189,4 @@ const DietsPage = () => {
   );
 };
 
-export default DietsPage;
+export default DietPage;
