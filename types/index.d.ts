@@ -101,6 +101,11 @@ interface Diet {
   name: string;
 }
 
+interface DietCombinationCount {
+  dietCodes: string;
+  count: number;
+}
+
 interface Allergy {
   id: number;
   code: string;
