@@ -182,12 +182,13 @@ const PatientForm = ({
               <div>
                 <DateTimePicker
                   granularity="day"
-                  value={new Date(field.state.value)}
+                  value={field.state.value}
                   onChange={(date) => {
                     if (date) {
                       field.handleChange(date);
                     }
                   }}
+                  yearRange={100}
                 />
               </div>
             )}
