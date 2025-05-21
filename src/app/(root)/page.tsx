@@ -53,11 +53,12 @@ import { Download } from "lucide-react";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import api from "@/lib/axios";
 import { Card } from "@/components/ui/card";
+import DietCombinationsCount from "@/components/DietCombinationsCount";
 
 const HomePage = () => {
   const isMobile = useIsMobile();
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [roomType, setRoomType] = useState<number>(1);
+  const [roomType, setRoomType] = useState<number | undefined>();
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [mealTypes, setMealTypes] = useState<MealType[]>([]);
@@ -95,6 +96,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
+    if (!roomType) return;
     const fetchRoomsBasedOnRoomType = async () => {
       const res = await api.get(`/room/filter?roomType=${roomType}`);
       setRooms(res.data.data as Room[]);
@@ -249,9 +251,9 @@ const HomePage = () => {
   });
 
   return (
-    <div className="my-8 flex w-full flex-col gap-y-5 px-4">
+    <div className="my-4 flex w-full flex-col gap-y-5 px-4">
       <Card className="px-4 py-4">
-        <h1 className="text-primary w-fit text-2xl font-bold">
+        <h1 className="bg-primary w-fit rounded-sm px-2 py-1 text-2xl font-bold">
           Tabel Permintaan Makanan
         </h1>
         <div className="flex gap-x-8">
@@ -262,7 +264,7 @@ const HomePage = () => {
             granularity="day"
           />
           <Select
-            value={String(roomType)}
+            value={roomType !== undefined ? String(roomType) : undefined}
             onValueChange={(val) => setRoomType(Number(val))}
           >
             <SelectTrigger>
@@ -281,7 +283,7 @@ const HomePage = () => {
         {roomType && (
           <div className="flex justify-between">
             <Button
-              className="w-[150px]"
+              className="w-[200px]"
               onClick={() => {
                 setSelectedDailyMeal(undefined);
                 setDialogOpen(true);
@@ -415,93 +417,102 @@ const HomePage = () => {
         </Dialog>
       )}
 
-      {date && roomType && matrixMealCount.length > 0 && (
-        <Card className="flex w-fit flex-col gap-y-2 px-4 py-4">
-          <p>
-            Rekapitulasi Permintaan Makanan{" "}
-            <span className="bg-primary rounded-sm p-1 font-bold">
-              {roomTypes.find((rt) => rt.id === roomType)?.name}
-            </span>{" "}
-            - {format(date, "PPP", { locale: id })}
-          </p>
-
-          <Table className="w-1/3">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="truncate whitespace-normal">
-                  Kelas Perawatan
-                </TableHead>
-                {mealTypes.map((mt) => (
-                  <TableHead key={mt.id}>{mt.code}</TableHead>
-                ))}
-                <TableHead className="bg-primary font-bold">Total</TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {matrixMealCount.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>{row.treatmentClass}</TableCell>
-                  {mealTypes.map((mt) => (
-                    <TableCell key={`${row.treatmentClass}-${mt.code}`}>
-                      {row[mt.code] || 0}
-                    </TableCell>
-                  ))}
-                  <TableCell className="bg-primary font-bold">
-                    {row.total}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
-      )}
-
-      {date && roomType && matrixMealCountAll.length > 0 && (
-        <Card className="gap-y- flex w-fit flex-col px-4 py-4">
-          <div className="flex items-center gap-x-4">
-            <p>
-              Rekapitulasi Permintaan Makanan{" "}
+      <div className="flex justify-between gap-x-4 gap-y-4 max-md:flex-col">
+        {date && roomType && matrixMealCount.length > 0 && (
+          <Card className="flex w-fit flex-col justify-between gap-y-2 px-4 py-4">
+            <p className="relative top-[6px]">
+              Rekap Permintaan Makanan{" "}
               <span className="bg-primary rounded-sm p-1 font-bold">
-                Semua Ruangan
+                {roomTypes.find((rt) => rt.id === roomType)?.name}
               </span>{" "}
               - {format(date, "PPP", { locale: id })}
             </p>
 
-            <Button onClick={handleDownloadSpreadsheet}>
-              <Download />
-              Spreadsheet
-            </Button>
-          </div>
-
-          <Table className="w-1/3">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Kelas Perawatan</TableHead>
-                {mealTypes.map((mt) => (
-                  <TableHead key={mt.id}>{mt.code}</TableHead>
-                ))}
-                <TableHead className="bg-primary font-bold">Total</TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {matrixMealCountAll.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>{row.treatmentClass}</TableCell>
+            <Table className="w-full">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="truncate whitespace-normal">
+                    Kelas Perawatan
+                  </TableHead>
                   {mealTypes.map((mt) => (
-                    <TableCell key={`${row.treatmentClass}-${mt.code}`}>
-                      {row[mt.code] || 0}
-                    </TableCell>
+                    <TableHead key={mt.id}>{mt.code}</TableHead>
                   ))}
-                  <TableCell className="bg-primary font-bold">
-                    {row.total}
-                  </TableCell>
+                  <TableHead className="bg-primary/50 font-bold">
+                    Total
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+              </TableHeader>
+
+              <TableBody>
+                {matrixMealCount.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{row.treatmentClass}</TableCell>
+                    {mealTypes.map((mt) => (
+                      <TableCell key={`${row.treatmentClass}-${mt.code}`}>
+                        {row[mt.code] || 0}
+                      </TableCell>
+                    ))}
+                    <TableCell className="bg-primary/50 font-bold">
+                      {row.total}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        )}
+
+        {date && roomType && matrixMealCountAll.length > 0 && (
+          <Card className="w-fit flex-[2] flex-col justify-between gap-y-2 px-4 py-4">
+            <div className="flex items-center justify-between gap-x-4">
+              <p>
+                Rekap Permintaan Makanan{" "}
+                <span className="bg-primary rounded-sm p-1 font-bold">
+                  Semua Ruangan
+                </span>{" "}
+                - {format(date, "PPP", { locale: id })}
+              </p>
+
+              <Button onClick={handleDownloadSpreadsheet}>
+                <Download />
+                Spreadsheet
+              </Button>
+            </div>
+
+            <Table className="w-full">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Kelas Perawatan</TableHead>
+                  {mealTypes.map((mt) => (
+                    <TableHead key={mt.id}>{mt.code}</TableHead>
+                  ))}
+                  <TableHead className="bg-primary/50 font-bold">
+                    Total
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody>
+                {matrixMealCountAll.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{row.treatmentClass}</TableCell>
+                    {mealTypes.map((mt) => (
+                      <TableCell key={`${row.treatmentClass}-${mt.code}`}>
+                        {row[mt.code] || 0}
+                      </TableCell>
+                    ))}
+                    <TableCell className="bg-primary/50 font-bold">
+                      {row.total}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        )}
+      </div>
+      {date && roomType && (
+        <DietCombinationsCount date={date} dailyData={data} />
       )}
     </div>
   );
