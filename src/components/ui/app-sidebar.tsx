@@ -22,11 +22,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
-import { ChevronUp, Contact, Table } from "lucide-react";
 import useSessionStore from "@/hooks/use-session";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { isAxiosError } from "axios";
+import Image from "next/image";
+import { ChevronUp } from "lucide-react";
 
 const sidebarData = [
   {
@@ -36,12 +37,12 @@ const sidebarData = [
       {
         title: "Permintaan Makanan",
         url: "/",
-        icon: Table,
+        icon: "/meal.png",
       },
       {
         title: "Daftar Pasien",
         url: "/patients",
-        icon: Contact,
+        icon: "/patient.png",
       },
     ],
   },
@@ -55,14 +56,27 @@ const sidebarAdmin = [
       {
         title: "Katalog Menu",
         url: "/menu",
+        icon: "/breakfast.png",
       },
       {
         title: "Katalog Bahan Makanan",
         url: "/foods",
+        icon: "/vegetable.png",
+      },
+      {
+        title: "Daftar Diet",
+        url: "/diet",
+        icon: "/diet.png",
+      },
+      {
+        title: "Daftar Alergi",
+        url: "/allergy",
+        icon: "/allergy.png",
       },
       {
         title: "Daftar User",
         url: "/users",
+        icon: "/users.png",
       },
     ],
   },
@@ -131,7 +145,12 @@ const AppSidebar = () => {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild isActive={isActive}>
                         <Link href={item.url}>
-                          <item.icon />
+                          <Image
+                            src={item.icon}
+                            alt={item.title}
+                            width={20}
+                            height={20}
+                          />
                           {item.title}
                         </Link>
                       </SidebarMenuButton>
@@ -153,7 +172,15 @@ const AppSidebar = () => {
                   return (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild isActive={isActive}>
-                        <Link href={item.url}>{item.title}</Link>
+                        <Link href={item.url}>
+                          <Image
+                            src={item.icon}
+                            alt={item.title}
+                            width={20}
+                            height={20}
+                          />
+                          {item.title}
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
