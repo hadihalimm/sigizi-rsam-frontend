@@ -136,12 +136,19 @@ const UsersPage = () => {
         Tambah User
       </Button>
 
-      <Table className="w-[35vw] table-fixed">
+      <Table className="w-1/2 table-fixed max-md:w-full">
         <TableCaption>Total: {users.length}</TableCaption>
         <TableHeader>
           <TableRow>
             {table.getFlatHeaders().map((header) => (
-              <TableHead key={header.id}>
+              <TableHead
+                key={header.id}
+                style={{
+                  width: `${header.getSize()}px`,
+                  minWidth: `${header.getSize()}px`,
+                  maxWidth: `${header.getSize()}px`,
+                }}
+              >
                 {flexRender(
                   header.column.columnDef.header,
                   header.getContext(),
@@ -162,7 +169,11 @@ const UsersPage = () => {
               }}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} suppressHydrationWarning>
+                <TableCell
+                  key={cell.id}
+                  className="truncate"
+                  suppressHydrationWarning
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
