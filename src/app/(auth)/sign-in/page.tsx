@@ -10,9 +10,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useSessionStore from "@/hooks/use-session";
-import api from "@/lib/axios";
 import { useForm } from "@tanstack/react-form";
-import { isAxiosError } from "axios";
+import axios, { isAxiosError } from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -38,8 +37,8 @@ const SignInPage = () => {
     },
     onSubmit: async ({ value }) => {
       try {
-        const res = await api.post(
-          `/auth/sign-in`,
+        const res = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/sign-in`,
           {
             username: value.username,
             password: value.password,
@@ -55,7 +54,7 @@ const SignInPage = () => {
       } catch (err) {
         if (isAxiosError(err)) {
           console.error(err);
-          toast.error(String(err.message));
+          toast.error(String(err.response?.data.error));
         } else {
           console.error(err);
           toast.error(String(err));
