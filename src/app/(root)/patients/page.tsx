@@ -108,11 +108,13 @@ const PatientPage = () => {
       id: "medicalRecordNumber",
       header: "Nomor MR",
       cell: (info) => info.getValue(),
+      size: 80,
     }),
     columnHelper.accessor("name", {
       id: "name",
       header: "Nama",
       cell: (info) => info.getValue(),
+      size: 150,
     }),
     columnHelper.accessor("dateOfBirth", {
       id: "dateOfBirth",
@@ -121,6 +123,7 @@ const PatientPage = () => {
         const rawDate = info.getValue();
         return rawDate ? format(new Date(rawDate), "PPP", { locale: id }) : "-";
       },
+      size: 150,
     }),
     columnHelper.accessor("allergies", {
       id: "allergies",
@@ -130,6 +133,7 @@ const PatientPage = () => {
           .getValue()
           .map((allergy) => allergy.code)
           .join(", "),
+      size: 80,
     }),
   ] as ColumnDef<Patient>[];
 
@@ -150,6 +154,7 @@ const PatientPage = () => {
     <div className="mt-10 flex w-full flex-col gap-y-5 px-4">
       <Input
         type="text"
+        className="w-1/2"
         placeholder="Cari pasien"
         value={keyword}
         onChange={(e) => {
@@ -167,82 +172,99 @@ const PatientPage = () => {
         Tambah Pasien
       </Button>
 
-      <Table className="w-[50vw] table-fixed">
-        <TableCaption>Total: {totalPatient}</TableCaption>
-        <TableHeader>
-          <TableRow>
-            {table.getFlatHeaders().map((header) => (
-              <TableHead key={header.id}>
-                {flexRender(
-                  header.column.columnDef.header,
-                  header.getContext(),
-                )}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              className="cursor-pointer"
-              onClick={() => {
-                setSelectedPatient(row.original);
-                setDialogOpen(true);
-              }}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} suppressHydrationWarning>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
+      <div className="flex w-1/2 flex-col gap-y-8 max-md:w-full">
+        <Table className="table-fixed border-black">
+          <TableCaption>Total: {totalPatient}</TableCaption>
+          <TableHeader>
+            <TableRow>
+              {table.getFlatHeaders().map((header) => (
+                <TableHead
+                  key={header.id}
+                  style={{
+                    width: `${header.getSize()}px`,
+                    minWidth: `${header.getSize()}px`,
+                    maxWidth: `${header.getSize()}px`,
+                  }}
+                >
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext(),
+                  )}
+                </TableHead>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
 
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem className="cursor-pointer select-none">
-            <PaginationPrevious
-              onClick={() => {
-                setCurrentPage((oldPage) => Math.max(oldPage - 1, 1));
-              }}
-            />
-          </PaginationItem>
-
-          {generatePagination(totalPages, currentPage - 1).map(
-            (pageItem, index) => (
-              <PaginationItem
-                key={index}
-                className="cursor-pointer select-none"
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                className="cursor-pointer"
+                onClick={() => {
+                  setSelectedPatient(row.original);
+                  setDialogOpen(true);
+                }}
               >
-                {typeof pageItem === "number" ? (
-                  <PaginationLink
-                    onClick={() => {
-                      setCurrentPage(Number(pageItem) + 1);
-                    }}
-                    isActive={pageItem + 1 === currentPage}
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    suppressHydrationWarning
+                    className="truncate"
                   >
-                    {pageItem + 1}
-                  </PaginationLink>
-                ) : (
-                  <span className="cursor-default select-none">{pageItem}</span>
-                )}
-              </PaginationItem>
-            ),
-          )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
-          <PaginationItem className="cursor-pointer select-none">
-            <PaginationNext
-              onClick={() => {
-                setCurrentPage((oldPage) => Math.min(oldPage + 1, totalPages));
-              }}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+        <Pagination className="">
+          <PaginationContent>
+            <PaginationItem className="cursor-pointer select-none">
+              <PaginationPrevious
+                onClick={() => {
+                  setCurrentPage((oldPage) => Math.max(oldPage - 1, 1));
+                }}
+              />
+            </PaginationItem>
+
+            {generatePagination(totalPages, currentPage - 1).map(
+              (pageItem, index) => (
+                <PaginationItem
+                  key={index}
+                  className="cursor-pointer select-none"
+                >
+                  {typeof pageItem === "number" ? (
+                    <PaginationLink
+                      onClick={() => {
+                        setCurrentPage(Number(pageItem) + 1);
+                      }}
+                      isActive={pageItem + 1 === currentPage}
+                    >
+                      {pageItem + 1}
+                    </PaginationLink>
+                  ) : (
+                    <span className="cursor-default select-none">
+                      {pageItem}
+                    </span>
+                  )}
+                </PaginationItem>
+              ),
+            )}
+
+            <PaginationItem className="cursor-pointer select-none">
+              <PaginationNext
+                onClick={() => {
+                  setCurrentPage((oldPage) =>
+                    Math.min(oldPage + 1, totalPages),
+                  );
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
 
       {isMobile ? (
         <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
