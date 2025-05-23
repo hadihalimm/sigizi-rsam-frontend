@@ -131,6 +131,7 @@ const FoodPage = () => {
     <div className="mt-10 flex w-full flex-col gap-y-5 px-4">
       <Input
         type="text"
+        className="w-1/2 max-md:w-full"
         placeholder="Cari makanan"
         value={columnFilters[0].value as string}
         onChange={(e) =>
@@ -152,7 +153,7 @@ const FoodPage = () => {
         Tambah Makanan
       </Button>
 
-      <Table>
+      <Table className="w-1/2 table-fixed max-md:w-full">
         <TableCaption>Katalog Makanan</TableCaption>
         <TableHeader>
           <TableRow>
