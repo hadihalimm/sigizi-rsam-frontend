@@ -4,9 +4,11 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
+  ColumnFiltersState,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -54,6 +56,7 @@ import NotificationDropdown from "@/components/NotificationDropdown";
 import api from "@/lib/axios";
 import { Card } from "@/components/ui/card";
 import DietCombinationsCount from "@/components/DietCombinationsCount";
+import { Input } from "@/components/ui/input";
 
 const HomePage = () => {
   const isMobile = useIsMobile();
@@ -86,8 +89,6 @@ const HomePage = () => {
       } catch (err) {
         if (isAxiosError(err)) {
           toast.error(String(err));
-          console.error("Axios error status:", err.response?.status);
-          console.error("Axios error data:", err.response?.data);
         }
         console.error(err);
       }
@@ -169,13 +170,13 @@ const HomePage = () => {
       id: "medicalRecordNumber",
       header: "Nomor MR",
       cell: (info) => info.getValue(),
-      size: 70,
+      size: 80,
     }),
     columnHelper.accessor("patient.name", {
       id: "patientName",
       header: "Nama Pasien",
       cell: (info) => info.getValue(),
-      size: 120,
+      size: 150,
     }),
     columnHelper.accessor("patient.dateOfBirth", {
       id: "patientDateOfBirth",
@@ -184,25 +185,25 @@ const HomePage = () => {
         const rawDate = info.getValue();
         return rawDate ? format(new Date(rawDate), "PPP", { locale: id }) : "-";
       },
-      size: 100,
+      size: 120,
     }),
     columnHelper.accessor("room.roomNumber", {
       id: "roomNumber",
       header: "No. Kamar",
       cell: (info) => info.getValue(),
-      size: 60,
+      size: 70,
     }),
     columnHelper.accessor("room.treatmentClass", {
       id: "treatmentClass",
       header: "Kelas Perawatan",
       cell: (info) => info.getValue(),
-      size: 60,
+      size: 90,
     }),
     columnHelper.accessor("mealType.code", {
       id: "mealTypeCode",
       header: "Jenis Makanan",
       cell: (info) => info.getValue(),
-      size: 60,
+      size: 80,
     }),
     columnHelper.accessor("diets", {
       id: "diets",
@@ -212,7 +213,7 @@ const HomePage = () => {
           .getValue()
           .map((diet) => diet.code)
           .join(", "),
-      size: 180,
+      size: 250,
     }),
     columnHelper.accessor("patient.allergies", {
       id: "patientAllergies",
@@ -230,16 +231,28 @@ const HomePage = () => {
       cell: (info) => info.getValue(),
       sortingFn: "datetime",
     }),
+    columnHelper.display({
+      id: "combinedFilter",
+      filterFn: (row, columnId, filterValue: string) => {
+        const mrn = row.original.patient.medicalRecordNumber.toLowerCase();
+        const name = row.original.patient.name.toLowerCase();
+        const query = filterValue.toLowerCase();
+        return mrn.includes(query) || name.includes(query);
+      },
+    }),
   ] as ColumnDef<DailyPatientMeal>[];
 
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
     columns,
     data,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     initialState: {
       columnVisibility: {
         updatedAt: false,
+        combinedFilter: false,
       },
       sorting: [
         {
@@ -248,12 +261,16 @@ const HomePage = () => {
         },
       ],
     },
+    state: {
+      columnFilters,
+    },
+    onColumnFiltersChange: setColumnFilters,
   });
 
   return (
     <div className="my-4 flex w-full flex-col gap-y-5 px-4">
       <Card className="px-4 py-4">
-        <h1 className="bg-primary w-fit rounded-sm px-2 py-1 text-2xl font-bold">
+        <h1 className="text-foreground w-fit rounded-sm px-2 py-1 text-2xl font-bold">
           Tabel Permintaan Makanan
         </h1>
         <div className="flex gap-x-8">
@@ -262,6 +279,7 @@ const HomePage = () => {
             onChange={setDate}
             className="w-[250px]"
             granularity="day"
+            yearRange={10}
           />
           <Select
             value={roomType !== undefined ? String(roomType) : undefined}
@@ -280,17 +298,38 @@ const HomePage = () => {
           </Select>
         </div>
 
+        {(!date || !roomType) && <p>Silahkan pilih tanggal dan tipe ruangan</p>}
+        {date && roomType && data.length === 0 && <p>Tidak ada data</p>}
+
         {roomType && (
-          <div className="flex justify-between">
-            <Button
-              className="w-[200px]"
-              onClick={() => {
-                setSelectedDailyMeal(undefined);
-                setDialogOpen(true);
-              }}
-            >
-              Tambah Entri
-            </Button>
+          <div className="flex justify-between gap-x-4">
+            <div className="flex gap-x-4">
+              <Button
+                className="w-[150px]"
+                onClick={() => {
+                  setSelectedDailyMeal(undefined);
+                  setDialogOpen(true);
+                }}
+              >
+                Tambah Entri
+              </Button>
+
+              <Input
+                type="text"
+                className="w-[250px]"
+                placeholder="Cari data..."
+                value={
+                  (table
+                    .getColumn("combinedFilter")
+                    ?.getFilterValue() as string) ?? ""
+                }
+                onChange={(e) =>
+                  table
+                    .getColumn("combinedFilter")
+                    ?.setFilterValue(e.target.value)
+                }
+              />
+            </div>
             <NotificationDropdown
               open={openDropdownLog}
               setOpen={setOpenDropdownLog}
@@ -300,12 +339,10 @@ const HomePage = () => {
               mealTypes={mealTypes}
               diets={diets}
               dailyData={data}
+              className="ml-auto"
             />
           </div>
         )}
-
-        {(!date || !roomType) && <p>Silahkan pilih tanggal dan tipe ruangan</p>}
-        {date && roomType && data.length === 0 && <p>Tidak ada data</p>}
 
         {roomType && data.length > 0 && (
           <div className="border-primary/70 overflow-hidden rounded-md border">
@@ -315,7 +352,7 @@ const HomePage = () => {
                   {table.getFlatHeaders().map((header) => (
                     <TableHead
                       key={header.id}
-                      className="bg-primary/50 truncate py-2 font-semibold whitespace-normal"
+                      className="bg-primary/50 w-full truncate py-2 font-semibold whitespace-normal"
                       style={{
                         width: `${header.getSize()}px`,
                         minWidth: `${header.getSize()}px`,
@@ -419,7 +456,7 @@ const HomePage = () => {
 
       <div className="flex justify-between gap-x-4 gap-y-4 max-md:flex-col">
         {date && roomType && matrixMealCount.length > 0 && (
-          <Card className="flex w-fit flex-col justify-between gap-y-2 px-4 py-4">
+          <Card className="flex w-fit flex-col gap-y-2 px-4 py-4">
             <p className="relative top-[6px]">
               Rekap Permintaan Makanan{" "}
               <span className="bg-primary rounded-sm p-1 font-bold">
@@ -427,38 +464,39 @@ const HomePage = () => {
               </span>{" "}
               - {format(date, "PPP", { locale: id })}
             </p>
-
-            <Table className="w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="truncate whitespace-normal">
-                    Kelas Perawatan
-                  </TableHead>
-                  {mealTypes.map((mt) => (
-                    <TableHead key={mt.id}>{mt.code}</TableHead>
-                  ))}
-                  <TableHead className="bg-primary/50 font-bold">
-                    Total
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {matrixMealCount.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{row.treatmentClass}</TableCell>
+            <div className="relative top-[13px]">
+              <Table className="w-full">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="truncate whitespace-normal">
+                      Kelas Perawatan
+                    </TableHead>
                     {mealTypes.map((mt) => (
-                      <TableCell key={`${row.treatmentClass}-${mt.code}`}>
-                        {row[mt.code] || 0}
-                      </TableCell>
+                      <TableHead key={mt.id}>{mt.code}</TableHead>
                     ))}
-                    <TableCell className="bg-primary/50 font-bold">
-                      {row.total}
-                    </TableCell>
+                    <TableHead className="bg-primary/50 font-bold">
+                      Total
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+
+                <TableBody>
+                  {matrixMealCount.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{row.treatmentClass}</TableCell>
+                      {mealTypes.map((mt) => (
+                        <TableCell key={`${row.treatmentClass}-${mt.code}`}>
+                          {row[mt.code] || 0}
+                        </TableCell>
+                      ))}
+                      <TableCell className="bg-primary/50 font-bold">
+                        {row.total}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </Card>
         )}
 
