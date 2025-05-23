@@ -111,6 +111,7 @@ const UsersPage = () => {
     initialState: {
       columnVisibility: {
         id: false,
+        combinedFilter: false,
       },
     },
   });
@@ -118,6 +119,7 @@ const UsersPage = () => {
     <div className="mt-10 flex w-full flex-col gap-y-5 px-4">
       <Input
         type="text"
+        className="w-1/2"
         placeholder="Cari user..."
         value={
           (table.getColumn("combinedFilter")?.getFilterValue() as string) ?? ""
