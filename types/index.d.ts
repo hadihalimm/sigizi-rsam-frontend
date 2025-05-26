@@ -59,6 +59,7 @@ interface DailyPatientMeal {
   room: Room;
   mealType: MealType;
   diets: Diet[];
+  isNewlyAdmitted: boolean;
 }
 
 interface DailyPatientMealLog {
