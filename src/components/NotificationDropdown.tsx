@@ -71,7 +71,7 @@ const NotificationDropdown = ({
       const changedDate = new Date(log.changedAt);
       return !lastSeenDate || changedDate > lastSeenDate;
     });
-    setHasUnread(true);
+    setHasUnread(hasNew);
   }, [logs]);
 
   useEffect(() => {
