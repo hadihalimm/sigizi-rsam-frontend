@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  ColumnFiltersState,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
@@ -50,7 +49,7 @@ import DailyPatientMealForm from "@/components/DailyPatientMealForm";
 import { id } from "date-fns/locale";
 import toast from "react-hot-toast";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
-import { pivotMealMatrix } from "@/lib/utils";
+import { cn, pivotMealMatrix } from "@/lib/utils";
 import { Download } from "lucide-react";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import api from "@/lib/axios";
@@ -170,7 +169,7 @@ const HomePage = () => {
       id: "medicalRecordNumber",
       header: "Nomor MR",
       cell: (info) => info.getValue(),
-      size: 80,
+      size: 85,
     }),
     columnHelper.accessor("patient.name", {
       id: "patientName",
@@ -225,6 +224,12 @@ const HomePage = () => {
           .join(", "),
       size: 100,
     }),
+    columnHelper.accessor("notes", {
+      id: "notes",
+      header: "Catatan",
+      cell: (info) => info.getValue(),
+      size: 120,
+    }),
     columnHelper.accessor("updatedAt", {
       id: "updatedAt",
       header: "Updated At",
@@ -242,7 +247,7 @@ const HomePage = () => {
     }),
   ] as ColumnDef<DailyPatientMeal>[];
 
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  // const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
     columns,
     data,
@@ -261,10 +266,10 @@ const HomePage = () => {
         },
       ],
     },
-    state: {
-      columnFilters,
-    },
-    onColumnFiltersChange: setColumnFilters,
+    // state: {
+    //   columnFilters,
+    // },
+    // onColumnFiltersChange: setColumnFilters,
   });
 
   return (
@@ -376,7 +381,10 @@ const HomePage = () => {
                       setSelectedDailyMeal(row.original);
                       setDialogOpen(true);
                     }}
-                    className="cursor-pointer"
+                    className={cn(
+                      "cursor-pointer",
+                      row.original.isNewlyAdmitted && "bg-orange-100",
+                    )}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
