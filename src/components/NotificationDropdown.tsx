@@ -44,6 +44,7 @@ const NotificationDropdown = ({
   className,
 }: NotificationDropdownProps) => {
   const [logs, setLogs] = useState<DailyPatientMealLog[]>([]);
+  const [hasUnread, setHasUnread] = useState(false);
 
   const fetchLogs = async () => {
     try {
@@ -63,11 +64,32 @@ const NotificationDropdown = ({
     fetchLogs();
   }, [dailyData]);
 
+  useEffect(() => {
+    const lastSeen = localStorage.getItem("notificationLastSeen");
+    const lastSeenDate = lastSeen ? new Date(lastSeen) : null;
+    const hasNew = logs.some((log) => {
+      const changedDate = new Date(log.changedAt);
+      return !lastSeenDate || changedDate > lastSeenDate;
+    });
+    setHasUnread(true);
+  }, [logs]);
+
+  useEffect(() => {
+    if (open) {
+      const now = new Date().toISOString();
+      localStorage.setItem("notificationLastSeen", now);
+      setHasUnread(false);
+    }
+  }, [open]);
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button size="icon">
+        <Button size="icon" className="relative">
           <Bell />
+          {hasUnread && (
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-400"></span>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -163,6 +185,17 @@ const renderLogDetail = (
             {oldNames}
           </span> &rarr;{" "}
           <span className="bg-primary rounded-sm p-1">{newNames}</span>
+        </p>
+      );
+    }
+
+    case "Notes": {
+      return (
+        <p>
+          Notes:&nbsp;&nbsp;
+          <span className="bg-secondary rounded-sm p-1">{log.oldValue}</span>
+          &rarr;{" "}
+          <span className="bg-primary rounded-sm p-1">{log.newValue}</span>
         </p>
       );
     }
