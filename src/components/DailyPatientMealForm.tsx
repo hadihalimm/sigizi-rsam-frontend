@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import { Save, Trash } from "lucide-react";
 import MultipleSelector, { Option } from "./ui/multi-select";
 import api from "@/lib/axios";
+import { Switch } from "./ui/switch";
 
 interface DailyPatientMealFormProps {
   currentDate: Date;
@@ -38,6 +39,7 @@ const formSchema = z.object({
   mealTypeID: z.number({ message: "Silahkan pilih Jenis Makanan" }),
   notes: z.string(),
   dietIDs: z.array(z.number()),
+  isNewlyAdmitted: z.boolean(),
 });
 
 const DailyPatientMealForm = ({
@@ -59,6 +61,7 @@ const DailyPatientMealForm = ({
       mealTypeID: initialData?.mealTypeID ?? "",
       notes: initialData?.notes ?? "",
       dietIDs: initialData?.diets.map((diet) => diet.id) ?? [],
+      isNewlyAdmitted: initialData?.isNewlyAdmitted ?? false,
     },
     validators: {
       onSubmit: formSchema,
@@ -73,6 +76,7 @@ const DailyPatientMealForm = ({
         date: initialData?.createdAt ?? currentDate,
         notes: value.notes,
         dietIDs: value.dietIDs,
+        isNewlyAdmitted: value.isNewlyAdmitted,
       };
       console.log(payload);
       try {
@@ -157,6 +161,7 @@ const DailyPatientMealForm = ({
         form.handleSubmit();
       }}
       className={cn("", className)}
+      autoComplete="off"
     >
       <Label htmlFor="patientID"></Label>
       <form.Field name="patientID">
@@ -169,7 +174,7 @@ const DailyPatientMealForm = ({
         }
       </form.Field>
 
-      <div className="grid grid-cols-4 grid-rows-6 items-center gap-4">
+      <div className="grid grid-cols-4 grid-rows-7 items-center gap-4">
         <div>
           <Label htmlFor="patientMedicalRecordNumber">Nomor MR</Label>
         </div>
@@ -381,6 +386,20 @@ const DailyPatientMealForm = ({
                 />
               )
             }
+          </form.Field>
+        </div>
+
+        <div className="row-start-7">
+          <Label htmlFor="notes">Pasien tambahan?</Label>
+        </div>
+        <div className="col-span-3 row-start-7">
+          <form.Field name="isNewlyAdmitted">
+            {(field) => (
+              <Switch
+                checked={field.state.value}
+                onCheckedChange={field.handleChange}
+              />
+            )}
           </form.Field>
         </div>
       </div>
