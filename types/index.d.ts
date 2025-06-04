@@ -27,12 +27,15 @@ interface MealType {
 
 interface RoomType {
   id: number;
+  code: string;
   name: string;
 }
 
 interface Room {
   id: number;
-  roomNumber: string;
+  code: string;
+  name: string;
+  treatmentClassID: string;
   treatmentClass: string;
   roomTypeID: number;
   roomType: RoomType;
@@ -66,7 +69,7 @@ interface DailyPatientMealLog {
   id: number;
   dailyPatientMealID: number;
   roomID: number;
-  roomNumber: string;
+  roomName: string;
   patientMRN: string;
   patientName: string;
   field: string;
