@@ -13,6 +13,7 @@ api.interceptors.response.use(
       useSessionStore.getState().clearSession();
       window.location.href = "/sign-in";
     }
+    return Promise.reject(err);
   },
 );
 
