@@ -65,6 +65,7 @@ const HomePage = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [mealTypes, setMealTypes] = useState<MealType[]>([]);
   const [diets, setDiets] = useState<Diet[]>([]);
+  const [allergies, setAllergies] = useState<Allergy[]>([]);
   const [data, setData] = useState<DailyPatientMeal[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedDailyMeal, setSelectedDailyMeal] = useState<
@@ -85,6 +86,9 @@ const HomePage = () => {
 
         res = await api.get("/diet");
         setDiets(res.data.data as Diet[]);
+
+        res = await api.get("/allergy");
+        setAllergies(res.data.data as Allergy[]);
       } catch (err) {
         if (isAxiosError(err)) {
           toast.error(String(err));
@@ -184,10 +188,10 @@ const HomePage = () => {
         const rawDate = info.getValue();
         return rawDate ? format(new Date(rawDate), "PPP", { locale: id }) : "-";
       },
-      size: 120,
+      size: 140,
     }),
-    columnHelper.accessor("room.roomNumber", {
-      id: "roomNumber",
+    columnHelper.accessor("room.name", {
+      id: "name",
       header: "No. Kamar",
       cell: (info) => info.getValue(),
       size: 70,
@@ -212,7 +216,7 @@ const HomePage = () => {
           .getValue()
           .map((diet) => diet.code)
           .join(", "),
-      size: 250,
+      size: 230,
     }),
     columnHelper.accessor("patient.allergies", {
       id: "patientAllergies",
@@ -247,7 +251,6 @@ const HomePage = () => {
     }),
   ] as ColumnDef<DailyPatientMeal>[];
 
-  // const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
     columns,
     data,
@@ -282,7 +285,7 @@ const HomePage = () => {
           <DateTimePicker
             value={date}
             onChange={setDate}
-            className="w-[250px]"
+            className="w-[300px]"
             granularity="day"
             yearRange={10}
           />
@@ -290,7 +293,7 @@ const HomePage = () => {
             value={roomType !== undefined ? String(roomType) : undefined}
             onValueChange={(val) => setRoomType(Number(val))}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Jenis Ruangan..." />
             </SelectTrigger>
             <SelectContent>
@@ -321,7 +324,7 @@ const HomePage = () => {
 
               <Input
                 type="text"
-                className="w-[250px]"
+                className="w-[365px]"
                 placeholder="Cari data..."
                 value={
                   (table
@@ -340,6 +343,7 @@ const HomePage = () => {
               setOpen={setOpenDropdownLog}
               date={date!}
               roomType={roomType}
+              roomTypes={roomTypes}
               rooms={rooms}
               mealTypes={mealTypes}
               diets={diets}
@@ -419,9 +423,11 @@ const HomePage = () => {
             </DrawerHeader>
             <DailyPatientMealForm
               currentDate={date ?? new Date()}
-              rooms={rooms}
+              roomTypeID={roomType!}
+              roomTypes={roomTypes}
               mealTypes={mealTypes}
               diets={diets}
+              allergies={allergies}
               initialData={selectedDailyMeal}
               onSuccess={() => {
                 setDialogOpen(false);
@@ -447,9 +453,11 @@ const HomePage = () => {
             </DialogHeader>
             <DailyPatientMealForm
               currentDate={date ?? new Date()}
-              rooms={rooms}
+              roomTypeID={roomType!}
+              roomTypes={roomTypes}
               mealTypes={mealTypes}
               diets={diets}
+              allergies={allergies}
               initialData={selectedDailyMeal}
               onSuccess={() => {
                 setDialogOpen(false);
@@ -464,15 +472,18 @@ const HomePage = () => {
 
       <div className="flex justify-between gap-x-4 gap-y-4 max-md:flex-col">
         {date && roomType && matrixMealCount.length > 0 && (
-          <Card className="flex w-fit flex-col gap-y-2 px-4 py-4">
-            <p className="relative top-[6px]">
-              Rekap Permintaan Makanan{" "}
-              <span className="bg-primary rounded-sm p-1 font-bold">
-                {roomTypes.find((rt) => rt.id === roomType)?.name}
-              </span>{" "}
-              - {format(date, "PPP", { locale: id })}
+          <Card className="flex flex-col gap-y-2 px-4 py-4">
+            <p className="font-lg text-secondary-foreground text-lg font-semibold">
+              Rekap Permintaan Makanan
             </p>
-            <div className="relative top-[13px]">
+            <p>
+              <span className="bg-primary w-fit rounded-sm p-1 text-lg font-bold">
+                {roomTypes.find((rt) => rt.id === roomType)?.name}
+              </span>
+              {" - "}
+              {format(date, "PPP", { locale: id })}
+            </p>
+            <div className="">
               <Table className="w-full">
                 <TableHeader>
                   <TableRow>
@@ -509,15 +520,15 @@ const HomePage = () => {
         )}
 
         {date && roomType && matrixMealCountAll.length > 0 && (
-          <Card className="w-fit flex-[2] flex-col justify-between gap-y-2 px-4 py-4">
+          <Card className="w-fit flex-[2] flex-col gap-y-2 px-4 py-4">
             <div className="flex items-center justify-between gap-x-4">
-              <p>
+              <p className="text-secondary-foreground text-lg font-semibold">
                 Rekap Permintaan Makanan{" "}
-                <span className="bg-primary rounded-sm p-1 font-bold">
+                <span className="bg-primary rounded-sm p-1 text-lg font-bold">
                   Semua Ruangan
                 </span>{" "}
-                - {format(date, "PPP", { locale: id })}
               </p>
+              {format(date, "PPP", { locale: id })}
 
               <Button onClick={handleDownloadSpreadsheet}>
                 <Download />
