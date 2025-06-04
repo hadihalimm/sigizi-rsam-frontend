@@ -25,6 +25,7 @@ interface NotificationDropdownProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   date: Date;
   roomType: number;
+  roomTypes: RoomType[];
   rooms: Room[];
   mealTypes: MealType[];
   diets: Diet[];
@@ -37,6 +38,7 @@ const NotificationDropdown = ({
   setOpen,
   date,
   roomType,
+  roomTypes,
   rooms,
   mealTypes,
   diets,
@@ -106,10 +108,10 @@ const NotificationDropdown = ({
               return (
                 <DropdownMenuItem key={log.id} className="flex flex-col">
                   <span className="font-bold">
-                    {log.patientName} - {log.patientMRN} - {log.roomNumber}
+                    {log.patientName} - {log.patientMRN} - {log.roomName}
                   </span>
                   <span className="font-medium">
-                    {renderLogDetail(log, mealTypes, rooms, diets)}
+                    {renderLogDetail(log, mealTypes, roomTypes, rooms, diets)}
                   </span>
                   <span className="text-xs font-extralight">
                     {format(new Date(log.changedAt), "d MMMM yyyy, HH:mm", {
@@ -129,6 +131,7 @@ const NotificationDropdown = ({
 const renderLogDetail = (
   log: DailyPatientMealLog,
   mealTypes: MealType[],
+  roomTypes: RoomType[],
   rooms: Room[],
   diets: Diet[],
 ) => {
@@ -149,13 +152,27 @@ const renderLogDetail = (
       );
     }
 
+    case "RoomType": {
+      const oldValue =
+        roomTypes.find((rt) => rt.id === Number(log.oldValue))?.name ?? "-";
+      const newValue =
+        roomTypes.find((rt) => rt.id === Number(log.newValue))?.name ?? "-";
+      return (
+        <p>
+          Bangsal:&nbsp;&nbsp;
+          <span className="bg-secondary rounded-sm p-1">
+            {oldValue}
+          </span> &rarr;{" "}
+          <span className="bg-primary rounded-sm p-1">{newValue}</span>
+        </p>
+      );
+    }
+
     case "RoomID": {
       const oldValue =
-        rooms.find((room) => room.id === Number(log.oldValue))?.roomNumber ??
-        "-";
+        rooms.find((room) => room.id === Number(log.oldValue))?.name ?? "-";
       const newValue =
-        rooms.find((room) => room.id === Number(log.newValue))?.roomNumber ??
-        "-";
+        rooms.find((room) => room.id === Number(log.newValue))?.name ?? "-";
       return (
         <p>
           Nomor kamar:&nbsp;&nbsp;
