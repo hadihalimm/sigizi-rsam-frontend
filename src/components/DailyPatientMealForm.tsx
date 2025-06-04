@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { z } from "zod";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
@@ -21,9 +21,11 @@ import { Switch } from "./ui/switch";
 
 interface DailyPatientMealFormProps {
   currentDate: Date;
-  rooms: Room[];
+  roomTypeID: number;
+  roomTypes: RoomType[];
   mealTypes: MealType[];
   diets: Diet[];
+  allergies: Allergy[];
   initialData?: DailyPatientMeal;
   onSuccess: () => void;
   className?: string;
@@ -35,32 +37,40 @@ const formSchema = z.object({
     .string()
     .min(1, { message: "Silahkan masukkan Nomor MR" }),
   patientName: z.string(),
+  roomTypeID: z.number({ message: "Silahkan pilih Jenis Kamar" }),
   roomID: z.number({ message: "Silahkan pilih Nomor Kamar" }),
   mealTypeID: z.number({ message: "Silahkan pilih Jenis Makanan" }),
   notes: z.string(),
   dietIDs: z.array(z.number()),
+  allergyIDs: z.array(z.number()),
   isNewlyAdmitted: z.boolean(),
 });
 
 const DailyPatientMealForm = ({
   currentDate,
-  rooms,
+  roomTypeID,
+  roomTypes,
   mealTypes,
   diets,
+  allergies,
   initialData,
   onSuccess,
   className,
 }: DailyPatientMealFormProps) => {
+  const [rooms, setRooms] = useState<Room[]>([]);
   const form = useForm({
     defaultValues: {
       patientID: initialData?.patientID ?? 0,
       patientMedicalRecordNumber:
         initialData?.patient.medicalRecordNumber ?? "",
       patientName: initialData?.patient.name ?? "",
+      roomTypeID: initialData?.room.roomTypeID ?? roomTypeID,
       roomID: initialData?.roomID ?? "",
       mealTypeID: initialData?.mealTypeID ?? "",
       notes: initialData?.notes ?? "",
       dietIDs: initialData?.diets.map((diet) => diet.id) ?? [],
+      allergyIDs:
+        initialData?.patient.allergies.map((allergy) => allergy.id) ?? [],
       isNewlyAdmitted: initialData?.isNewlyAdmitted ?? false,
     },
     validators: {
@@ -78,7 +88,6 @@ const DailyPatientMealForm = ({
         dietIDs: value.dietIDs,
         isNewlyAdmitted: value.isNewlyAdmitted,
       };
-      console.log(payload);
       try {
         const url = initialData
           ? `/daily-patient-meal/${initialData.id}`
@@ -86,17 +95,15 @@ const DailyPatientMealForm = ({
 
         const method = initialData ? "patch" : "post";
 
-        const res = await api[method](url, payload);
-        console.log(res.status);
-        onSuccess();
+        await api[method](url, payload);
         toast.success(
           `Berhasil ${initialData ? "mengubah" : "menambahkan"} data`,
         );
+        onSuccess();
       } catch (err) {
         if (isAxiosError(err)) {
           toast.error(String(err.response?.data.error));
         }
-        console.error(err);
       }
     },
   });
@@ -114,6 +121,19 @@ const DailyPatientMealForm = ({
       console.error(err);
     }
   };
+
+  const [selectedRoomTypeID, setSelectedRoomTypeID] = useState<number>(
+    form.getFieldValue("roomTypeID"),
+  );
+  useEffect(() => {
+    if (!selectedRoomTypeID) return;
+    const fetchRoomsBasedOnRoomType = async () => {
+      const res = await api.get(`/room/filter?roomType=${selectedRoomTypeID}`);
+      setRooms(res.data.data as Room[]);
+    };
+
+    fetchRoomsBasedOnRoomType();
+  }, [selectedRoomTypeID]);
 
   const dietOptions: Option[] = diets.map((diet) => ({
     label: diet.code,
@@ -133,13 +153,38 @@ const DailyPatientMealForm = ({
     setChoosenDiet(selected);
   };
 
+  const allergyOptions: Option[] = allergies.map((allergy) => ({
+    label: allergy.code,
+    value: allergy.id.toString(),
+  }));
+  const [choosenAllergy, setChoosenAllergy] = useState<Option[]>(
+    initialData?.patient.allergies.map((allergy) => ({
+      label: allergy.code,
+      value: allergy.id.toString(),
+    })) ?? [],
+  );
+  const handleAllergyChange = (selected: Option[]) => {
+    form.setFieldValue(
+      "allergyIDs",
+      selected.map((option) => Number(option.value)),
+    );
+    setChoosenAllergy(selected);
+  };
+
   const [isPatientNotExists, setIsPatientNotExists] = useState(false);
   const checkPatientExists = async (medicalRecordNumber: string) => {
     try {
       const res = await api.get(`/patient/filter?mrn=${medicalRecordNumber}`);
       const data = res.data.data as Patient;
+      console.log(data);
       form.setFieldValue("patientID", data.id);
       form.setFieldValue("patientName", data.name);
+      handleAllergyChange(
+        data.allergies.map((allergy) => ({
+          label: allergy.code,
+          value: allergy.id.toString(),
+        })) ?? [],
+      );
       setIsPatientNotExists(false);
     } catch (err) {
       if (isAxiosError(err)) {
@@ -174,7 +219,7 @@ const DailyPatientMealForm = ({
         }
       </form.Field>
 
-      <div className="grid grid-cols-4 grid-rows-7 items-center gap-4">
+      <div className="grid grid-cols-4 grid-rows-8 items-center gap-4">
         <div>
           <Label htmlFor="patientMedicalRecordNumber">Nomor MR</Label>
         </div>
@@ -244,9 +289,40 @@ const DailyPatientMealForm = ({
         </div>
 
         <div className="row-start-3">
-          <Label htmlFor="roomID">Nomor Kamar</Label>
+          <Label htmlFor="roomID">Tipe Kamar</Label>
         </div>
         <div className="col-span-3 row-start-3 max-h-[40px]">
+          <form.Field name="roomTypeID">
+            {(field) => (
+              <Select
+                value={field.state.value?.toString()}
+                onValueChange={(val) => {
+                  setSelectedRoomTypeID(Number(val));
+                  field.handleChange(Number(val));
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Jenis kamar" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roomTypes.map((roomType) => (
+                    <SelectItem
+                      key={roomType.id}
+                      value={roomType.id.toString()}
+                    >
+                      {roomType.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </form.Field>
+        </div>
+
+        <div className="row-start-4">
+          <Label htmlFor="roomID">Nomor Kamar</Label>
+        </div>
+        <div className="col-span-3 row-start-4 max-h-[40px]">
           <form.Field name="roomID">
             {(field) =>
               initialData ? (
@@ -255,12 +331,12 @@ const DailyPatientMealForm = ({
                   onValueChange={(val) => field.handleChange(Number(val))}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue />
+                    <SelectValue placeholder="Nomor Kamar" />
                   </SelectTrigger>
                   <SelectContent>
                     {rooms.map((room) => (
                       <SelectItem key={room.id} value={room.id.toString()}>
-                        {room.roomNumber}
+                        {room.name} ({room.treatmentClass})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -277,7 +353,7 @@ const DailyPatientMealForm = ({
                     <SelectContent>
                       {rooms.map((room) => (
                         <SelectItem key={room.id} value={room.id.toString()}>
-                          {room.roomNumber}
+                          {room.name} ({room.treatmentClass})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -294,10 +370,10 @@ const DailyPatientMealForm = ({
           </form.Field>
         </div>
 
-        <div className="row-start-4">
+        <div className="row-start-5">
           <Label htmlFor="mealTypeID">Jenis Makanan</Label>
         </div>
-        <div className="col-span-3 row-start-4 max-h-[40px]">
+        <div className="col-span-3 row-start-5 max-h-[40px]">
           <form.Field name="mealTypeID">
             {(field) =>
               initialData ? (
@@ -345,10 +421,10 @@ const DailyPatientMealForm = ({
           </form.Field>
         </div>
 
-        <div className="row-start-5">
+        <div className="row-start-6">
           <Label htmlFor="notes">Diet</Label>
         </div>
-        <div className="col-span-3 row-start-5 max-h-[45px]">
+        <div className="col-span-3 row-start-6 max-h-[45px]">
           <form.Field name="dietIDs">
             {() => (
               <div>
@@ -364,10 +440,38 @@ const DailyPatientMealForm = ({
           </form.Field>
         </div>
 
-        <div className="row-start-6">
+        {isPatientNotExists && (
+          <>
+            <div className="row-start-7">
+              <Label htmlFor="notes">Alergi</Label>
+            </div>
+            <div className="col-span-3 row-start-7 max-h-[45px]">
+              <form.Field name="dietIDs">
+                {() => (
+                  <div>
+                    <MultipleSelector
+                      value={choosenAllergy}
+                      onChange={handleAllergyChange}
+                      defaultOptions={allergyOptions}
+                      placeholder="Pilih alergi pasien..."
+                      hidePlaceholderWhenSelected
+                    />
+                  </div>
+                )}
+              </form.Field>
+            </div>
+          </>
+        )}
+
+        <div className={cn(initialData ? "row-start-7" : "row-start-8")}>
           <Label htmlFor="notes">Catatan</Label>
         </div>
-        <div className="col-span-3 row-start-6">
+        <div
+          className={cn(
+            "col-span-3",
+            initialData ? "row-start-7" : "row-start-8",
+          )}
+        >
           <form.Field name="notes">
             {(field) =>
               initialData ? (
@@ -389,10 +493,15 @@ const DailyPatientMealForm = ({
           </form.Field>
         </div>
 
-        <div className="row-start-7">
+        <div className={cn(initialData ? "row-start-8" : "row-start-9")}>
           <Label htmlFor="notes">Pasien tambahan?</Label>
         </div>
-        <div className="col-span-3 row-start-7">
+        <div
+          className={cn(
+            "col-span-3",
+            initialData ? "row-start-8" : "row-start-9",
+          )}
+        >
           <form.Field name="isNewlyAdmitted">
             {(field) => (
               <Switch
