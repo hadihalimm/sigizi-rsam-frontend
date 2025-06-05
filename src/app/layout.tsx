@@ -42,7 +42,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Toaster />
+          <Toaster
+            toastOptions={{
+              style: {
+                background: "oklch(0.70 0.12 130.34)",
+                fontWeight: "600",
+                color: "oklch(0.99 0.01 91.5)",
+              },
+            }}
+          />
           {children}
         </ThemeProvider>
       </body>
