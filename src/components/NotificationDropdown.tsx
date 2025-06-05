@@ -98,7 +98,12 @@ const NotificationDropdown = ({
         className="h-[400px] w-[300px] overflow-x-scroll"
         align="end"
       >
-        <DropdownMenuLabel>Update Logs</DropdownMenuLabel>
+        <DropdownMenuLabel>
+          Update Logs{" - "}
+          {format(date, "d MMMM yyyy", {
+            locale: id,
+          })}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup className="space-y-4 px-2">
           {logs.length == 0 ? (
