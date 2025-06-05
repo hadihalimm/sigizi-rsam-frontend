@@ -94,6 +94,7 @@ const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   id="username"
+                  placeholder="Username"
                 />
                 {field.state.meta.errors.length > 0 &&
                   field.state.meta.errors.map((err, idx) => (
@@ -118,6 +119,7 @@ const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   id="name"
+                  placeholder="Nama"
                 />
                 {field.state.meta.errors.length > 0 &&
                   field.state.meta.errors.map((err, idx) => (
@@ -142,6 +144,7 @@ const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   id="password"
+                  placeholder="Password"
                 />
                 {field.state.meta.errors.length > 0 &&
                   field.state.meta.errors.map((err, idx) => (
@@ -165,7 +168,7 @@ const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
                 onValueChange={field.handleChange}
               >
                 <SelectTrigger className="w-1/2">
-                  <SelectValue />
+                  <SelectValue placeholder="Pilih Role" />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.values(UserRole).map((role) => (

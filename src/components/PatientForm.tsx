@@ -136,6 +136,7 @@ const PatientForm = ({
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     id="medicalRecordNumber"
+                    placeholder="Nomor MR"
                   />
                   {field.state.meta.errors.length > 0 &&
                     field.state.meta.errors.map((err, idx) => (
@@ -161,6 +162,7 @@ const PatientForm = ({
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   id="patientName"
+                  placeholder="Nama pasien"
                 />
                 {field.state.meta.errors.length > 0 &&
                   field.state.meta.errors.map((err, idx) => (
