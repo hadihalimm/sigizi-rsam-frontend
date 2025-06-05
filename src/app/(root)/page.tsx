@@ -201,7 +201,7 @@ const HomePage = () => {
       id: "name",
       header: "No. Kamar",
       cell: (info) => info.getValue(),
-      size: 70,
+      size: 100,
     }),
     columnHelper.accessor("room.treatmentClass", {
       id: "treatmentClass",
@@ -239,7 +239,7 @@ const HomePage = () => {
       id: "notes",
       header: "Catatan",
       cell: (info) => info.getValue(),
-      size: 120,
+      size: 90,
     }),
     columnHelper.accessor("updatedAt", {
       id: "updatedAt",
@@ -292,7 +292,7 @@ const HomePage = () => {
           <DateTimePicker
             value={date}
             onChange={setDate}
-            className="w-[300px]"
+            className="w-[250px]"
             granularity="day"
             yearRange={10}
           />
@@ -300,7 +300,7 @@ const HomePage = () => {
             value={roomType !== undefined ? String(roomType) : undefined}
             onValueChange={(val) => setRoomType(Number(val))}
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[250px]">
               <SelectValue placeholder="Jenis Ruangan..." />
             </SelectTrigger>
             <SelectContent>
