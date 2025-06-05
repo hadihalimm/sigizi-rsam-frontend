@@ -175,7 +175,7 @@ const renderLogDetail = (
         rooms.find((room) => room.id === Number(log.newValue))?.name ?? "-";
       return (
         <p>
-          Nomor kamar:&nbsp;&nbsp;
+          Kamar:&nbsp;&nbsp;
           <span className="bg-secondary rounded-sm p-1">
             {oldValue}
           </span> &rarr;{" "}
