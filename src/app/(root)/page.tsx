@@ -56,6 +56,8 @@ import api from "@/lib/axios";
 import { Card } from "@/components/ui/card";
 import DietCombinationsCount from "@/components/DietCombinationsCount";
 import { Input } from "@/components/ui/input";
+import { Label } from "@radix-ui/react-label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const HomePage = () => {
   const isMobile = useIsMobile();
@@ -289,28 +291,34 @@ const HomePage = () => {
           Tabel Permintaan Makanan
         </h1>
         <div className="flex gap-x-8">
-          <DateTimePicker
-            value={date}
-            onChange={setDate}
-            className="w-[250px]"
-            granularity="day"
-            yearRange={10}
-          />
-          <Select
-            value={roomType !== undefined ? String(roomType) : undefined}
-            onValueChange={(val) => setRoomType(Number(val))}
-          >
-            <SelectTrigger className="w-[250px]">
-              <SelectValue placeholder="Jenis Ruangan..." />
-            </SelectTrigger>
-            <SelectContent>
-              {roomTypes.map((room) => (
-                <SelectItem key={room.id} value={room.id.toString()}>
-                  {room.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label className="flex flex-col gap-y-1">
+            <p className="text-foreground pl-1 text-sm">Tanggal</p>
+            <DateTimePicker
+              value={date}
+              onChange={setDate}
+              className="w-[250px]"
+              granularity="day"
+              yearRange={10}
+            />
+          </Label>
+          <Label className="flex flex-col gap-y-1">
+            <p className="text-foreground pl-1 text-sm">Bangsal</p>
+            <Select
+              value={roomType !== undefined ? String(roomType) : undefined}
+              onValueChange={(val) => setRoomType(Number(val))}
+            >
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Jenis Ruangan..." />
+              </SelectTrigger>
+              <SelectContent>
+                {roomTypes.map((room) => (
+                  <SelectItem key={room.id} value={room.id.toString()}>
+                    {room.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Label>
         </div>
 
         {(!date || !roomType) && <p>Silahkan pilih tanggal dan tipe ruangan</p>}
@@ -428,22 +436,24 @@ const HomePage = () => {
               </DrawerTitle>
               <DrawerDescription></DrawerDescription>
             </DrawerHeader>
-            <DailyPatientMealForm
-              currentDate={date ?? new Date()}
-              roomTypeID={roomType!}
-              roomTypes={roomTypes}
-              mealTypes={mealTypes}
-              diets={diets}
-              allergies={allergies}
-              initialData={selectedDailyMeal}
-              onSuccess={() => {
-                setDialogOpen(false);
-                setSelectedDailyMeal(undefined);
-                fetchFilteredData();
-                fetchCountData();
-              }}
-              className="px-4"
-            />
+            <ScrollArea className="overflow-y-auto">
+              <DailyPatientMealForm
+                currentDate={date ?? new Date()}
+                roomTypeID={roomType!}
+                roomTypes={roomTypes}
+                mealTypes={mealTypes}
+                diets={diets}
+                allergies={allergies}
+                initialData={selectedDailyMeal}
+                onSuccess={() => {
+                  setDialogOpen(false);
+                  setSelectedDailyMeal(undefined);
+                  fetchFilteredData();
+                  fetchCountData();
+                }}
+                className="px-4"
+              />
+            </ScrollArea>
             <DrawerFooter className="pt-2"></DrawerFooter>
           </DrawerContent>
         </Drawer>
@@ -479,7 +489,7 @@ const HomePage = () => {
 
       <div className="flex justify-between gap-x-4 gap-y-4 max-md:flex-col">
         {date && roomType && matrixMealCount.length > 0 && (
-          <Card className="flex flex-col gap-y-2 px-4 py-4">
+          <Card className="flex w-fit flex-col gap-y-2 px-4 py-4">
             <p className="font-lg text-secondary-foreground text-lg font-semibold">
               Rekap Permintaan Makanan
             </p>
