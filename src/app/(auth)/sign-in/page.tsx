@@ -74,9 +74,17 @@ const SignInPage = () => {
         priority
       />
       <Card className="z-10 w-[350px]">
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign in</CardTitle>
-          <CardDescription>SIGIZI RSAM</CardDescription>
+        <CardHeader className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-2xl">Sign in</CardTitle>
+            <CardDescription>SIGIZI RSAM</CardDescription>
+          </div>
+          <Image
+            src={"/rsam-logo.jpg"}
+            alt="Logo RSAM"
+            width={40}
+            height={40}
+          />
         </CardHeader>
         <CardContent>
           <form
