@@ -187,7 +187,11 @@ const HomePage = () => {
     columnHelper.accessor("patient.name", {
       id: "patientName",
       header: "Nama Pasien",
-      cell: (info) => info.getValue(),
+      cell: (info) =>
+        info
+          .getValue()
+          .replace(/(?:^|[\s.])\w/g, (match) => match.toUpperCase())
+          .replace(/\s+/g, " "),
       size: 150,
     }),
     columnHelper.accessor("patient.dateOfBirth", {
