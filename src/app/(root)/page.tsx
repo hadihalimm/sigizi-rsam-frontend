@@ -91,7 +91,7 @@ const HomePage = () => {
         setAllergies(res.data.data as Allergy[]);
       } catch (err) {
         if (isAxiosError(err)) {
-          toast.error(String(err));
+          toast.error(String(err.response?.data.error));
         }
         console.error(err);
       }
@@ -102,8 +102,15 @@ const HomePage = () => {
   useEffect(() => {
     if (!roomType) return;
     const fetchRoomsBasedOnRoomType = async () => {
-      const res = await api.get(`/room/filter?roomType=${roomType}`);
-      setRooms(res.data.data as Room[]);
+      try {
+        const res = await api.get(`/room/filter?roomType=${roomType}`);
+        setRooms(res.data.data as Room[]);
+      } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
+        console.error(err);
+      }
     };
     fetchRoomsBasedOnRoomType();
   }, [roomType]);
@@ -118,7 +125,7 @@ const HomePage = () => {
       setData(res.data.data as DailyPatientMeal[]);
     } catch (err) {
       if (isAxiosError(err)) {
-        toast.error(String(err));
+        toast.error(String(err.response?.data.error));
       }
       console.error(err);
     }
@@ -143,7 +150,7 @@ const HomePage = () => {
       );
     } catch (err) {
       if (isAxiosError(err)) {
-        toast.error(String(err));
+        toast.error(String(err.response?.data.error));
       }
       console.error(err);
     }
@@ -387,7 +394,7 @@ const HomePage = () => {
                     }}
                     className={cn(
                       "cursor-pointer",
-                      row.original.isNewlyAdmitted && "bg-orange-100",
+                      row.original.isNewlyAdmitted && "bg-orange-100/50",
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (
