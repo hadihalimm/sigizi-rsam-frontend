@@ -40,7 +40,9 @@ const AllergyForm = ({
         name: value.name,
       };
       try {
-        const url = initialData ? `/allergy/${initialData.id}` : `/allergy`;
+        const url = initialData
+          ? `/admin/allergy/${initialData.id}`
+          : `/admin/allergy`;
         const method = initialData ? "patch" : "post";
 
         const res = await api[method](url, payload);
@@ -60,7 +62,7 @@ const AllergyForm = ({
 
   const onDelete = async (id: number) => {
     try {
-      const res = await api.delete(`/allergy/${id}`);
+      const res = await api.delete(`/admin/allergy/${id}`);
       console.log(res.status);
       toast.success("Berhasil menghapus data alergi");
       onSuccess();

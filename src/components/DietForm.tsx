@@ -36,7 +36,9 @@ const DietForm = ({ initialData, onSuccess, className }: DietFormProps) => {
         name: value.name,
       };
       try {
-        const url = initialData ? `/diet/${initialData.id}` : `/diet`;
+        const url = initialData
+          ? `/admin/diet/${initialData.id}`
+          : `/admin/diet`;
         const method = initialData ? "patch" : "post";
 
         const res = await api[method](url, payload);
@@ -56,7 +58,7 @@ const DietForm = ({ initialData, onSuccess, className }: DietFormProps) => {
 
   const onDelete = async (id: number) => {
     try {
-      const res = await api.delete(`/diet/${id}`);
+      const res = await api.delete(`/admin/diet/${id}`);
       console.log(res.status);
       toast.success("Berhasil menghapus data diet");
       onSuccess();
