@@ -205,7 +205,7 @@ const DailyPatientMealForm = ({
         e.stopPropagation();
         form.handleSubmit();
       }}
-      className={cn("", className)}
+      className={cn("text-md", className)}
       autoComplete="off"
     >
       <Label htmlFor="patientID"></Label>
