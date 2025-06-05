@@ -50,7 +50,7 @@ const UsersPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const fetchUsers = async () => {
     try {
-      const res = await api.get(`/user`);
+      const res = await api.get(`/admin/user`);
       setUsers(res.data.data as User[]);
     } catch (err) {
       if (isAxiosError(err)) {
