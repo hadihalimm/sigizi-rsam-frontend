@@ -8,7 +8,7 @@ import { Button } from "./ui/button";
 import { Save, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 
 interface DietFormProps {
   initialData?: Diet;
@@ -46,9 +46,10 @@ const DietForm = ({ initialData, onSuccess, className }: DietFormProps) => {
           `Berhasil ${initialData ? "mengubah" : "menambahkan"} data`,
         );
       } catch (err) {
-        console.log(axios.isAxiosError(err));
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     },
   });

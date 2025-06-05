@@ -16,6 +16,7 @@ import { Save, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import ResetPasswordDialog from "./ResetPasswordDialog";
 import api from "@/lib/axios";
+import { isAxiosError } from "axios";
 
 interface UserFormProps {
   initialData?: User;
@@ -63,8 +64,10 @@ const UserForm = ({ initialData, onSuccess, className }: UserFormProps) => {
         onSuccess();
         toast.success(`Berhasil mengubah data`);
       } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     },
   });

@@ -25,6 +25,7 @@ import {
 } from "./ui/dialog";
 import useSessionStore from "@/hooks/use-session";
 import api from "@/lib/axios";
+import { isAxiosError } from "axios";
 
 interface ChangePasswordFormProps {
   open: boolean;
@@ -72,8 +73,10 @@ const ChangePasswordForm = ({
         toast.success(`[${res.status}] Berhasil mengganti password`);
         onOpenChange(false);
       } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     },
   });

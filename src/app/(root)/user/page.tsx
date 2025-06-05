@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import useSessionStore from "@/hooks/use-session";
 import api from "@/lib/axios";
 import { useForm } from "@tanstack/react-form";
+import { isAxiosError } from "axios";
 import { Save } from "lucide-react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
@@ -35,8 +36,10 @@ const UserPage = () => {
         const res = await api.post(url, payload);
         toast.success(`[${res.status}] Berhasil mengganti nama`);
       } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     },
   });

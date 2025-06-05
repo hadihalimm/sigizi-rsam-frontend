@@ -16,6 +16,7 @@ import {
 import { Button } from "./ui/button";
 import { Save } from "lucide-react";
 import api from "@/lib/axios";
+import { isAxiosError } from "axios";
 
 interface RegisterFormProps {
   onSuccess: () => void;
@@ -64,8 +65,10 @@ const RegisterForm = ({ onSuccess, className }: RegisterFormProps) => {
         onSuccess();
         toast.success(`Berhasil menambahkan user`);
       } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     },
   });

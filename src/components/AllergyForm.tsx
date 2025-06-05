@@ -8,6 +8,7 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Save, Trash } from "lucide-react";
+import { isAxiosError } from "axios";
 
 interface AllergyFormProps {
   initialData?: Allergy;
@@ -49,8 +50,10 @@ const AllergyForm = ({
           `Berhasil ${initialData ? "mengubah" : "menambahkan"} data`,
         );
       } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     },
   });
@@ -62,8 +65,10 @@ const AllergyForm = ({
       toast.success("Berhasil menghapus data alergi");
       onSuccess();
     } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err.response?.data.error));
+      }
       console.error(err);
-      toast.error(String(err));
     }
   };
 

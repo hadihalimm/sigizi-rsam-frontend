@@ -8,6 +8,7 @@ import { Save, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import api from "@/lib/axios";
+import { isAxiosError } from "axios";
 
 interface FoodFormProps {
   initialData?: Food;
@@ -50,8 +51,10 @@ const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
           `Berhasil ${initialData ? "mengubah" : "menambahkan"} data`,
         );
       } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     },
   });
@@ -63,8 +66,10 @@ const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
       toast.success("Berhasil menghapus data makanan");
       onSuccess();
     } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err.response?.data.error));
+      }
       console.error(err);
-      toast.error(String(err));
     }
   };
 

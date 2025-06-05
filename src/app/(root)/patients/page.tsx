@@ -47,9 +47,11 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { isAxiosError } from "axios";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const PatientPage = () => {
   const isMobile = useIsMobile();
@@ -77,6 +79,9 @@ const PatientPage = () => {
       setTotalPatient(res.data.total);
       setTotalPages(res.data.totalPages);
     } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err.response?.data.error));
+      }
       console.error(err);
     }
   };

@@ -36,6 +36,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { isAxiosError } from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -56,8 +57,10 @@ const DietPage = () => {
       const res = await api.get(`/diet`);
       setDiets(res.data.data as Diet[]);
     } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err.response?.data.error));
+      }
       console.error(err);
-      toast.error(String(err));
     }
   };
 

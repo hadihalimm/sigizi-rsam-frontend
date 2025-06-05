@@ -14,6 +14,7 @@ import { Button } from "./ui/button";
 import { useForm } from "@tanstack/react-form";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import { isAxiosError } from "axios";
 
 interface ResetPasswordDialogProps {
   user: User;
@@ -31,8 +32,10 @@ const ResetPasswordDialog = ({ user, onConfirm }: ResetPasswordDialogProps) => {
         onConfirm();
         toast.success(`Berhasil reset password`);
       } catch (err) {
+        if (isAxiosError(err)) {
+          toast.error(String(err.response?.data.error));
+        }
         console.error(err);
-        toast.error(String(err));
       }
     },
   });

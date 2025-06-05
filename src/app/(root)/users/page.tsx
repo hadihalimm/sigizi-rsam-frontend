@@ -39,7 +39,9 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { isAxiosError } from "axios";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const UsersPage = () => {
   const isMobile = useIsMobile();
@@ -51,6 +53,9 @@ const UsersPage = () => {
       const res = await api.get(`/user`);
       setUsers(res.data.data as User[]);
     } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err.response?.data.error));
+      }
       console.error(err);
     }
   };
