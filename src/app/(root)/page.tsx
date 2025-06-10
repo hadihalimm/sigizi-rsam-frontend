@@ -496,17 +496,19 @@ const HomePage = () => {
 
       <div className="flex justify-between gap-x-4 gap-y-4 max-md:flex-col">
         {date && roomType && matrixMealCount.length > 0 && (
-          <Card className="flex w-fit flex-col gap-y-2 px-4 py-4">
+          <Card className="flex w-fit flex-1 flex-col gap-y-2 px-4 py-4">
             <p className="font-lg text-secondary-foreground text-lg font-semibold">
               Rekap Permintaan Makanan
             </p>
-            <p>
+            <div>
               <span className="bg-primary w-fit rounded-sm p-1 text-lg font-bold">
                 {roomTypes.find((rt) => rt.id === roomType)?.name}
               </span>
               {" - "}
-              {format(date, "PPP", { locale: id })}
-            </p>
+              <span className="whitespace-nowrap">
+                {format(date, "PPP", { locale: id })}
+              </span>
+            </div>
             <div className="">
               <Table className="w-full">
                 <TableHeader>
@@ -544,7 +546,7 @@ const HomePage = () => {
         )}
 
         {date && roomType && matrixMealCountAll.length > 0 && (
-          <Card className="w-fit flex-[2] flex-col gap-y-2 px-4 py-4">
+          <Card className="w-fit flex-col gap-y-2 px-4 py-4">
             <div className="flex items-center justify-between gap-x-4">
               <p className="text-secondary-foreground text-lg font-semibold">
                 Rekap Permintaan Makanan{" "}
