@@ -289,9 +289,9 @@ const HomePage = () => {
   });
 
   return (
-    <div className="my-4 flex w-full flex-col gap-y-5 px-4">
+    <div className="mt-2 mb-8 flex w-full flex-col gap-y-5 px-4">
       <Card className="px-4 py-4">
-        <h1 className="text-foreground w-fit rounded-sm px-2 py-1 text-2xl font-bold">
+        <h1 className="text-foreground w-fit rounded-sm py-1 text-2xl font-bold">
           Tabel Permintaan Makanan
         </h1>
         <div className="flex gap-x-8">
