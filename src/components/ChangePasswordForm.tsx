@@ -68,9 +68,8 @@ const ChangePasswordForm = ({
       };
       try {
         const url = `/user/${user?.userID}/actions/change-password`;
-        const res = await api.post(url, payload);
-        console.log(res.status);
-        toast.success(`[${res.status}] Berhasil mengganti password`);
+        await api.post(url, payload);
+        toast.success(`Berhasil mengganti password`);
         onOpenChange(false);
       } catch (err) {
         if (isAxiosError(err)) {
