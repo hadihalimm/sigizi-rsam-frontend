@@ -53,10 +53,9 @@ const SignInPage = () => {
         router.push("/");
       } catch (err) {
         if (isAxiosError(err)) {
-          console.error(err);
+          console.log(err.response?.data.error);
           toast.error(String(err.response?.data.error));
         } else {
-          console.error(err);
           toast.error(String(err));
         }
       }
