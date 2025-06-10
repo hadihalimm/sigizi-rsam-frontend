@@ -58,11 +58,12 @@ import DietCombinationsCount from "@/components/DietCombinationsCount";
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMealFilterStore } from "@/hooks/use-meal-filter";
 
 const HomePage = () => {
   const isMobile = useIsMobile();
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [roomType, setRoomType] = useState<number | undefined>();
+  // const [date, setDate] = useState<Date | undefined>(new Date());
+  // const [roomType, setRoomType] = useState<number | undefined>();
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [mealTypes, setMealTypes] = useState<MealType[]>([]);
@@ -76,6 +77,8 @@ const HomePage = () => {
   const [matrixMealCount, setMatrixMealCount] = useState<MatrixRow[]>([]);
   const [matrixMealCountAll, setMatrixMealCountAll] = useState<MatrixRow[]>([]);
   const [openDropdownLog, setOpenDropdownLog] = useState(false);
+
+  const { date, setDate, roomType, setRoomType } = useMealFilterStore();
 
   useEffect(() => {
     const fetchRequiredData = async () => {
@@ -298,7 +301,7 @@ const HomePage = () => {
           <Label className="flex flex-col gap-y-1">
             <p className="text-foreground pl-1 text-sm">Tanggal</p>
             <DateTimePicker
-              value={date}
+              value={new Date(date)}
               onChange={setDate}
               className="w-[250px]"
               granularity="day"
@@ -360,7 +363,7 @@ const HomePage = () => {
             <NotificationDropdown
               open={openDropdownLog}
               setOpen={setOpenDropdownLog}
-              date={date!}
+              date={new Date(date!)}
               roomType={roomType}
               roomTypes={roomTypes}
               rooms={rooms}
@@ -442,7 +445,7 @@ const HomePage = () => {
             </DrawerHeader>
             <ScrollArea className="overflow-y-auto">
               <DailyPatientMealForm
-                currentDate={date ?? new Date()}
+                currentDate={new Date(date) ?? new Date()}
                 roomTypeID={roomType!}
                 roomTypes={roomTypes}
                 mealTypes={mealTypes}
@@ -473,7 +476,7 @@ const HomePage = () => {
               <DialogDescription></DialogDescription>
             </DialogHeader>
             <DailyPatientMealForm
-              currentDate={date ?? new Date()}
+              currentDate={new Date(date) ?? new Date()}
               roomTypeID={roomType!}
               roomTypes={roomTypes}
               mealTypes={mealTypes}
@@ -590,7 +593,7 @@ const HomePage = () => {
         )}
       </div>
       {date && roomType && (
-        <DietCombinationsCount date={date} dailyData={data} />
+        <DietCombinationsCount date={new Date(date)} dailyData={data} />
       )}
     </div>
   );
