@@ -13,6 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "./sidebar";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -86,6 +87,7 @@ const AppSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { user, setSession, clearSession } = useSessionStore();
+  const { setOpenMobile } = useSidebar();
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -143,7 +145,11 @@ const AppSidebar = () => {
                   const isActive = pathname === item.url;
                   return (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild isActive={isActive}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        onClick={() => setOpenMobile(false)}
+                      >
                         <Link href={item.url}>
                           <Image
                             src={item.icon}
@@ -172,7 +178,11 @@ const AppSidebar = () => {
                     const isActive = pathname === item.url;
                     return (
                       <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild isActive={isActive}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive}
+                          onClick={() => setOpenMobile(false)}
+                        >
                           <Link href={item.url}>
                             <Image
                               src={item.icon}
