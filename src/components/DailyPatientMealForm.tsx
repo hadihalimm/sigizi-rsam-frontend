@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { cn } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import React, { useEffect, useState } from "react";
@@ -153,24 +154,6 @@ const DailyPatientMealForm = ({
     setChoosenDiet(selected);
   };
 
-  const allergyOptions: Option[] = allergies.map((allergy) => ({
-    label: allergy.code,
-    value: allergy.id.toString(),
-  }));
-  const [choosenAllergy, setChoosenAllergy] = useState<Option[]>(
-    initialData?.patient.allergies.map((allergy) => ({
-      label: allergy.code,
-      value: allergy.id.toString(),
-    })) ?? [],
-  );
-  const handleAllergyChange = (selected: Option[]) => {
-    form.setFieldValue(
-      "allergyIDs",
-      selected.map((option) => Number(option.value)),
-    );
-    setChoosenAllergy(selected);
-  };
-
   const [isPatientNotExists, setIsPatientNotExists] = useState(false);
   const checkPatientExists = async (medicalRecordNumber: string) => {
     try {
@@ -179,12 +162,6 @@ const DailyPatientMealForm = ({
       console.log(data);
       form.setFieldValue("patientID", data.id);
       form.setFieldValue("patientName", data.name);
-      handleAllergyChange(
-        data.allergies.map((allergy) => ({
-          label: allergy.code,
-          value: allergy.id.toString(),
-        })) ?? [],
-      );
       setIsPatientNotExists(false);
     } catch (err) {
       if (isAxiosError(err)) {
@@ -440,38 +417,10 @@ const DailyPatientMealForm = ({
           </form.Field>
         </div>
 
-        {isPatientNotExists && (
-          <>
-            <div className="row-start-7">
-              <Label htmlFor="notes">Alergi</Label>
-            </div>
-            <div className="col-span-3 row-start-7 max-h-[45px]">
-              <form.Field name="dietIDs">
-                {() => (
-                  <div>
-                    <MultipleSelector
-                      value={choosenAllergy}
-                      onChange={handleAllergyChange}
-                      defaultOptions={allergyOptions}
-                      placeholder="Pilih alergi pasien..."
-                      hidePlaceholderWhenSelected
-                    />
-                  </div>
-                )}
-              </form.Field>
-            </div>
-          </>
-        )}
-
-        <div className={cn(initialData ? "row-start-7" : "row-start-8")}>
+        <div className="row-start-7">
           <Label htmlFor="notes">Catatan</Label>
         </div>
-        <div
-          className={cn(
-            "col-span-3",
-            initialData ? "row-start-7" : "row-start-8",
-          )}
-        >
+        <div className="col-span-3 row-start-7">
           <form.Field name="notes">
             {(field) =>
               initialData ? (
@@ -493,15 +442,10 @@ const DailyPatientMealForm = ({
           </form.Field>
         </div>
 
-        <div className={cn(initialData ? "row-start-8" : "row-start-9")}>
+        <div className="row-start-8">
           <Label htmlFor="notes">Pasien tambahan?</Label>
         </div>
-        <div
-          className={cn(
-            "col-span-3",
-            initialData ? "row-start-8" : "row-start-9",
-          )}
-        >
+        <div className="col-span-3 row-start-8">
           <form.Field name="isNewlyAdmitted">
             {(field) => (
               <Switch
