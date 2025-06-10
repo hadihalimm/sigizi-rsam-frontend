@@ -158,7 +158,12 @@ const DailyPatientMealForm = ({
       const data = res.data.data as Patient;
       console.log(data);
       form.setFieldValue("patientID", data.id);
-      form.setFieldValue("patientName", data.name);
+      form.setFieldValue(
+        "patientName",
+        data.name
+          .replace(/(?:^|[\s.])\w/g, (match) => match.toUpperCase())
+          .replace(/\s+/g, " "),
+      );
       setIsPatientNotExists(false);
     } catch (err) {
       if (isAxiosError(err)) {
