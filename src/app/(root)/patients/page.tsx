@@ -118,7 +118,11 @@ const PatientPage = () => {
     columnHelper.accessor("name", {
       id: "name",
       header: "Nama",
-      cell: (info) => info.getValue(),
+      cell: (info) =>
+        info
+          .getValue()
+          .replace(/(?:^|[\s.])\w/g, (match) => match.toUpperCase())
+          .replace(/\s+/g, " "),
       size: 150,
     }),
     columnHelper.accessor("dateOfBirth", {
