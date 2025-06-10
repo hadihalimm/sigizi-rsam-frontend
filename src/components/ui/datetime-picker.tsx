@@ -838,7 +838,7 @@ const DateTimePicker = React.forwardRef<
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild disabled={disabled}>
+        <PopoverTrigger asChild disabled={disabled} className="border-input">
           <Button
             variant="outline"
             className={cn(
