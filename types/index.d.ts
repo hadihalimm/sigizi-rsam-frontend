@@ -68,7 +68,7 @@ interface DailyPatientMeal {
 interface DailyPatientMealLog {
   id: number;
   dailyPatientMealID: number;
-  roomID: number;
+  roomTypeName: string;
   roomName: string;
   patientMRN: string;
   patientName: string;
