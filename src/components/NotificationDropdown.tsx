@@ -113,7 +113,8 @@ const NotificationDropdown = ({
               return (
                 <DropdownMenuItem key={log.id} className="flex flex-col">
                   <span className="font-bold">
-                    {log.patientName} - {log.patientMRN} - {log.roomName}
+                    {log.patientName} - {log.patientMRN} - {log.roomTypeName} -{" "}
+                    {log.roomName}
                   </span>
                   <span className="font-medium">
                     {renderLogDetail(log, mealTypes, roomTypes, rooms, diets)}
@@ -158,33 +159,27 @@ const renderLogDetail = (
     }
 
     case "RoomType": {
-      const oldValue =
-        roomTypes.find((rt) => rt.id === Number(log.oldValue))?.name ?? "-";
-      const newValue =
-        roomTypes.find((rt) => rt.id === Number(log.newValue))?.name ?? "-";
       return (
         <p>
           Bangsal:&nbsp;&nbsp;
           <span className="bg-secondary rounded-sm p-1">
-            {oldValue}
-          </span> &rarr;{" "}
-          <span className="bg-primary rounded-sm p-1">{newValue}</span>
+            {log.oldValue}
+          </span>{" "}
+          &rarr;{" "}
+          <span className="bg-primary rounded-sm p-1">{log.newValue}</span>
         </p>
       );
     }
 
     case "RoomID": {
-      const oldValue =
-        rooms.find((room) => room.id === Number(log.oldValue))?.name ?? "-";
-      const newValue =
-        rooms.find((room) => room.id === Number(log.newValue))?.name ?? "-";
       return (
         <p>
           Kamar:&nbsp;&nbsp;
           <span className="bg-secondary rounded-sm p-1">
-            {oldValue}
-          </span> &rarr;{" "}
-          <span className="bg-primary rounded-sm p-1">{newValue}</span>
+            {log.oldValue}
+          </span>{" "}
+          &rarr;{" "}
+          <span className="bg-primary rounded-sm p-1">{log.newValue}</span>
         </p>
       );
     }
