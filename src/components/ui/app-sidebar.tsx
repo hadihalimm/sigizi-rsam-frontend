@@ -111,8 +111,8 @@ const AppSidebar = () => {
       const res = await api.post(`/auth/logout`, null, {
         withCredentials: true,
       });
-      console.log(res.status);
       clearSession();
+      localStorage.removeItem("meal-filter-storage");
       toast.success(res.data.message);
       router.push("/sign-in");
     } catch (err) {
