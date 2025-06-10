@@ -104,6 +104,19 @@ const PatientForm = ({
     setChoosenAllergy(selected);
   };
 
+  const fetchNewPatientFromSIMRS = async (mrn: string) => {
+    try {
+      const res = await api.get(`/patient/find-from-simrs?mrn=${mrn}`);
+      form.setFieldValue("patientName", res.data.patientName);
+      form.setFieldValue("dateOfBirth", new Date(res.data.patientDob));
+    } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err.response?.data.error));
+      }
+      console.error(err);
+    }
+  };
+
   return (
     <form
       onSubmit={async (e) => {
@@ -131,13 +144,23 @@ const PatientForm = ({
                 />
               ) : (
                 <div>
-                  <Input
-                    type="text"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    id="medicalRecordNumber"
-                    placeholder="Nomor MR"
-                  />
+                  <div className="flex gap-x-2">
+                    <Input
+                      type="text"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      id="medicalRecordNumber"
+                      placeholder="Nomor MR"
+                    />
+                    <Button
+                      type="button"
+                      onClick={() =>
+                        fetchNewPatientFromSIMRS(field.state.value)
+                      }
+                    >
+                      Cek RME
+                    </Button>
+                  </div>
                   {field.state.meta.errors.length > 0 &&
                     field.state.meta.errors.map((err, idx) => (
                       <p key={idx} className="text-[10px] text-red-500">
