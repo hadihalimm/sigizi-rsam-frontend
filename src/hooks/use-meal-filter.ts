@@ -17,7 +17,7 @@ export const useMealFilterStore = create<MealFilterState>()(
       setRoomType: (roomType) => set({ roomType }),
     }),
     {
-      name: "mea-filter-storage",
+      name: "meal-filter-storage",
     },
   ),
 );
