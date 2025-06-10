@@ -43,7 +43,6 @@ const formSchema = z.object({
   mealTypeID: z.number({ message: "Silahkan pilih Jenis Makanan" }),
   notes: z.string(),
   dietIDs: z.array(z.number()),
-  allergyIDs: z.array(z.number()),
   isNewlyAdmitted: z.boolean(),
 });
 
@@ -70,8 +69,6 @@ const DailyPatientMealForm = ({
       mealTypeID: initialData?.mealTypeID ?? "",
       notes: initialData?.notes ?? "",
       dietIDs: initialData?.diets.map((diet) => diet.id) ?? [],
-      allergyIDs:
-        initialData?.patient.allergies.map((allergy) => allergy.id) ?? [],
       isNewlyAdmitted: initialData?.isNewlyAdmitted ?? false,
     },
     validators: {
