@@ -249,7 +249,9 @@ const DailyPatientMealForm = ({
               initialData ? (
                 <Input
                   type="text"
-                  value={field.state.value}
+                  value={field.state.value
+                    .replace(/(?:^|[\s.])\w/g, (match) => match.toUpperCase())
+                    .replace(/\s+/g, " ")}
                   onChange={(e) => field.handleChange(e.target.value)}
                   id="patientName"
                   disabled
