@@ -69,14 +69,16 @@ const SignInPage = () => {
         alt="blob"
         width={900}
         height={900}
-        className="absolute z-0"
+        className="absolute z-0 mt-[40px]"
         priority
       />
       <Card className="z-10 w-[350px]">
         <CardHeader className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-2xl">Sign in</CardTitle>
-            <CardDescription>SIGIZI RSAM</CardDescription>
+            <CardTitle className="rounded-md text-2xl">
+              Sign in to SIGIZI
+            </CardTitle>
+            <CardDescription>RSAM Bukittinggi</CardDescription>
           </div>
           <Image
             src={"/rsam-logo.jpg"}
