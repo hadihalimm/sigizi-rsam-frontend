@@ -12,9 +12,10 @@ import { Input } from "@/components/ui/input";
 import useSessionStore from "@/hooks/use-session";
 import { useForm } from "@tanstack/react-form";
 import axios, { isAxiosError } from "axios";
+import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { z } from "zod";
 
@@ -26,6 +27,7 @@ const loginSchema = z.object({
 const SignInPage = () => {
   const router = useRouter();
   const { user, setSession } = useSessionStore();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -119,20 +121,31 @@ const SignInPage = () => {
               <form.Field
                 name="password"
                 children={(field) => (
-                  <>
+                  <div className="relative flex w-full items-center">
                     <Input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="Password"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
+                    <button
+                      type="button"
+                      className="absolute right-2"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? (
+                        <EyeOff color="grey" />
+                      ) : (
+                        <Eye color="grey" />
+                      )}
+                    </button>
                     {field.state.meta.errors.length > 0 &&
                       field.state.meta.errors.map((err, idx) => (
                         <p key={idx} className="text-sm text-red-500">
                           {err?.message}
                         </p>
                       ))}
-                  </>
+                  </div>
                 )}
               />
               <Button type="submit" className="mt-8 w-1/2">
