@@ -56,7 +56,7 @@ const UserForm = ({ initialData, onSuccess, className }: UserFormProps) => {
       };
       console.log(value);
       try {
-        const url = `/user/${initialData?.id}`;
+        const url = `/admin/user/${initialData?.id}`;
         const method = "patch";
 
         const res = await api[method](url, payload);
@@ -74,7 +74,7 @@ const UserForm = ({ initialData, onSuccess, className }: UserFormProps) => {
 
   const onDelete = async (id: number) => {
     try {
-      const res = await api.delete(`/user/${id}`);
+      const res = await api.delete(`/admin/user/${id}`);
       console.log(res.status);
       toast.success("Berhasil menghapus user");
       onSuccess();
