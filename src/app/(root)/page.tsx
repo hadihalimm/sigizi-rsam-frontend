@@ -59,6 +59,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMealFilterStore } from "@/hooks/use-meal-filter";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const HomePage = () => {
   const isMobile = useIsMobile();
@@ -170,6 +181,21 @@ const HomePage = () => {
     } catch (err) {
       console.error(err);
       toast.error(String(err));
+    }
+  };
+
+  const handleCopyFromYesterday = async () => {
+    try {
+      if (!date || !roomType) return;
+      const formattedDate = format(date, "yyyy-MM-dd");
+      await api.post(
+        `/daily-patient-meal/copy-from-yesterday?date=${formattedDate}&roomType=${roomType}`,
+      );
+    } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err.response?.data.error));
+      }
+      console.error(err);
     }
   };
 
@@ -329,7 +355,35 @@ const HomePage = () => {
         </div>
 
         {(!date || !roomType) && <p>Silahkan pilih tanggal dan tipe ruangan</p>}
-        {date && roomType && data.length === 0 && <p>Tidak ada data</p>}
+        {date && roomType && data.length === 0 && (
+          <div className="flex items-center gap-x-2">
+            <p>Tidak ada data</p>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline">Gunakan data kemarin</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Permintaan makanan hari ini akan sama dengan hari kemarin.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      handleCopyFromYesterday();
+                      window.location.reload();
+                    }}
+                  >
+                    Ya, saya yakin
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
 
         {roomType && (
           <div className="flex justify-between gap-x-4">
