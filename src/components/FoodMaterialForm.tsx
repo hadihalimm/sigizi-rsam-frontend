@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 import api from "@/lib/axios";
 import { isAxiosError } from "axios";
 
-interface FoodFormProps {
-  initialData?: Food;
+interface FoodMaterialFormProps {
+  initialData?: FoodMaterial;
   onSuccess: () => void;
   className?: string;
 }
@@ -19,15 +19,21 @@ interface FoodFormProps {
 const formSchema = z.object({
   name: z.string().min(1, { message: " Silahkan masukkan Nama Makanan" }),
   unit: z.string().min(1, { message: " Silahkan masukkan Satuan" }),
-  pricePerUnit: z.number().positive({ message: " Silahkan masukkan Harga" }),
+  standardPerMeal: z.coerce
+    .number()
+    .positive({ message: "Harus lebih dari 0" }),
 });
 
-const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
+const FoodMaterialForm = ({
+  initialData,
+  onSuccess,
+  className,
+}: FoodMaterialFormProps) => {
   const form = useForm({
     defaultValues: {
       name: initialData?.name ?? "",
       unit: initialData?.unit ?? "",
-      pricePerUnit: initialData?.price_per_unit ?? "",
+      standardPerMeal: initialData?.standardPerMeal ?? "",
     },
     validators: {
       onSubmit: formSchema,
@@ -36,12 +42,14 @@ const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
       const payload = {
         name: value.name,
         unit: value.unit,
-        pricePerUnit: value.pricePerUnit,
+        standardPerMeal: Number(value.standardPerMeal),
       };
       console.log(value);
 
       try {
-        const url = initialData ? `/food/${initialData.id}` : `/food`;
+        const url = initialData
+          ? `/admin/food-material/${initialData.id}`
+          : `/admin/food-material`;
         const method = initialData ? "patch" : "post";
 
         const res = await api[method](url, payload);
@@ -61,7 +69,7 @@ const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
 
   const onDelete = async (id: number) => {
     try {
-      const res = await api.delete(`/food/${id}`);
+      const res = await api.delete(`/admin/food-material/${id}`);
       console.log(res.status);
       toast.success("Berhasil menghapus data makanan");
       onSuccess();
@@ -84,7 +92,7 @@ const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
     >
       <div className="grid grid-cols-4 grid-rows-3 items-center gap-4 gap-x-2">
         <div>
-          <Label htmlFor="name">Nama Makanan</Label>
+          <Label htmlFor="name">Nama Bahan</Label>
         </div>
         <div className="col-span-3 max-h-[40px]">
           <form.Field name="name">
@@ -132,24 +140,19 @@ const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
         </div>
 
         <div className="row-start-3">
-          <Label htmlFor="pricePerUnit">Harga per Satuan</Label>
+          <Label htmlFor="standardPerMeal">Standar</Label>
         </div>
         <div className="col-span-3 row-start-3">
-          <form.Field name="pricePerUnit">
+          <form.Field name="standardPerMeal">
             {(field) => {
               return (
                 <div>
-                  <div className="flex items-center gap-x-2">
-                    <p>Rp </p>
-                    <Input
-                      type="text"
-                      value={field.state.value}
-                      onChange={(e) =>
-                        field.handleChange(Number(e.target.value))
-                      }
-                      id="pricePerUnit"
-                    />
-                  </div>
+                  <Input
+                    type="text"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    id="standardPerMeal"
+                  />
                   {field.state.meta.errors.length > 0 &&
                     field.state.meta.errors.map((err, idx) => (
                       <p key={idx} className="text-[10px] text-red-500">
@@ -193,4 +196,4 @@ const FoodForm = ({ initialData, onSuccess, className }: FoodFormProps) => {
   );
 };
 
-export default FoodForm;
+export default FoodMaterialForm;

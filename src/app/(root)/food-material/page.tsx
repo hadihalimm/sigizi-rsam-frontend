@@ -1,6 +1,6 @@
 "use client";
 
-import FoodForm from "@/components/FoodForm";
+import FoodMaterialForm from "@/components/FoodMaterialForm";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -45,9 +45,11 @@ import toast from "react-hot-toast";
 
 const FoodMaterialPage = () => {
   const isMobile = useIsMobile();
-  const [foods, setFoods] = useState<Food[]>([]);
+  const [foodMaterials, setFoodMaterials] = useState<FoodMaterial[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedFood, setSelectedFood] = useState<Food | undefined>();
+  const [selectedFoodMaterial, setSelectedFoodMaterial] = useState<
+    FoodMaterial | undefined
+  >();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
     {
       id: "name",
@@ -57,8 +59,9 @@ const FoodMaterialPage = () => {
 
   const fetchFoods = async () => {
     try {
-      const res = await api.get(`/food`);
-      setFoods(res.data.data as Food[]);
+      const res = await api.get(`/food-material`);
+      setFoodMaterials(res.data.data as FoodMaterial[]);
+      console.log(res.data.data);
     } catch (err) {
       if (isAxiosError(err)) {
         toast.error(String(err.response?.data.error));
@@ -71,8 +74,8 @@ const FoodMaterialPage = () => {
     fetchFoods();
   }, []);
 
-  const columnHelper = createColumnHelper<Food>();
-  const columns: ColumnDef<Food>[] = [
+  const columnHelper = createColumnHelper<FoodMaterial>();
+  const columns: ColumnDef<FoodMaterial>[] = [
     columnHelper.accessor("id", {
       id: "id",
       header: "ID",
@@ -89,28 +92,16 @@ const FoodMaterialPage = () => {
       header: "Satuan",
       cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor("price_per_unit", {
-      id: "price_per_unit",
-      header: "Harga per Unit",
-      cell: (info) => {
-        const value = info.getValue();
-        return new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          minimumFractionDigits: 0,
-        }).format(value as number);
-      },
-    }),
-    columnHelper.accessor("updatedAt", {
-      id: "updatedAt",
-      header: "Updated at",
+    columnHelper.accessor("standardPerMeal", {
+      id: "standardPerMeal",
+      header: "Standar per pasien",
       cell: (info) => info.getValue(),
     }),
-  ] as ColumnDef<Food>[];
+  ] as ColumnDef<FoodMaterial>[];
 
   const table = useReactTable({
     columns,
-    data: foods,
+    data: foodMaterials,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -135,7 +126,7 @@ const FoodMaterialPage = () => {
       <Input
         type="text"
         className="w-1/2 max-md:w-full"
-        placeholder="Cari makanan"
+        placeholder="Cari bahan makanan"
         value={columnFilters[0].value as string}
         onChange={(e) =>
           setColumnFilters([
@@ -147,17 +138,17 @@ const FoodMaterialPage = () => {
         }
       />
       <Button
-        className="w-[150px]"
+        className="w-[200px]"
         onClick={() => {
-          setSelectedFood(undefined);
+          setSelectedFoodMaterial(undefined);
           setDialogOpen(true);
         }}
       >
-        Tambah Makanan
+        Tambah Bahan Makanan
       </Button>
 
       <Table className="w-1/2 table-fixed max-md:w-full">
-        <TableCaption>Katalog Makanan</TableCaption>
+        <TableCaption>Katalog Bahan Makanan</TableCaption>
         <TableHeader>
           <TableRow>
             {table.getFlatHeaders().map((header) => (
@@ -177,7 +168,7 @@ const FoodMaterialPage = () => {
               key={row.id}
               className="cursor-pointer"
               onClick={() => {
-                setSelectedFood(row.original);
+                setSelectedFoodMaterial(row.original);
                 setDialogOpen(true);
               }}
             >
@@ -196,15 +187,17 @@ const FoodMaterialPage = () => {
           <DrawerContent>
             <DrawerHeader className="text-left">
               <DrawerTitle>
-                {selectedFood ? "Edit Data Makanan" : "Tambah Data Makanan"}
+                {selectedFoodMaterial
+                  ? "Edit Bahan Makanan"
+                  : "Tambah Bahan Makanan"}
               </DrawerTitle>
               <DrawerDescription></DrawerDescription>
             </DrawerHeader>
-            <FoodForm
-              initialData={selectedFood}
+            <FoodMaterialForm
+              initialData={selectedFoodMaterial}
               onSuccess={() => {
                 setDialogOpen(false);
-                setSelectedFood(undefined);
+                setSelectedFoodMaterial(undefined);
                 fetchFoods();
               }}
               className="px-4"
@@ -217,15 +210,17 @@ const FoodMaterialPage = () => {
           <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle>
-                {selectedFood ? "Edit Data Makanan" : "Tambah Data Makanan"}
+                {selectedFoodMaterial
+                  ? "Edit Bahan Makanan"
+                  : "Tambah Bahan Makanan"}
               </DialogTitle>
               <DialogDescription></DialogDescription>
             </DialogHeader>
-            <FoodForm
-              initialData={selectedFood}
+            <FoodMaterialForm
+              initialData={selectedFoodMaterial}
               onSuccess={() => {
                 setDialogOpen(false);
-                setSelectedFood(undefined);
+                setSelectedFoodMaterial(undefined);
                 fetchFoods();
               }}
             />

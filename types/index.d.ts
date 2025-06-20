@@ -79,13 +79,11 @@ interface DailyPatientMealLog {
   date: Date;
 }
 
-interface Food {
+interface FoodMaterial {
   id: number;
   name: string;
   unit: string;
-  price_per_unit: number;
-  createdAt: Date;
-  updatedAt: Date;
+  standardPerMeal: number;
 }
 
 interface MealItem {
