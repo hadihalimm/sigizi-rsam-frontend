@@ -43,7 +43,7 @@ import { isAxiosError } from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const FoodPage = () => {
+const FoodMaterialPage = () => {
   const isMobile = useIsMobile();
   const [foods, setFoods] = useState<Food[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -236,4 +236,4 @@ const FoodPage = () => {
   );
 };
 
-export default FoodPage;
+export default FoodMaterialPage;
