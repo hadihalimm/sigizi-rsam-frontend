@@ -108,12 +108,14 @@ const MealMenuPage = () => {
       id: "name",
       header: "Nama",
       cell: (info) => info.getValue(),
+      size: 90,
       sortingFn: "textCaseSensitive",
     }),
     columnHelper.accessor("day", {
       id: "day",
       header: "Hari",
       cell: (info) => info.getValue(),
+      size: 50,
       sortingFn: (rowA, rowB, columnId) => {
         const dayA = rowA.getValue(columnId);
         const dayB = rowB.getValue(columnId);
@@ -126,6 +128,7 @@ const MealMenuPage = () => {
       id: "time",
       header: "Waktu",
       cell: (info) => info.getValue(),
+      size: 50,
       sortingFn: (rowA, rowB, columnId) => {
         const timeA = rowA.getValue(columnId);
         const timeB = rowB.getValue(columnId);
@@ -138,6 +141,7 @@ const MealMenuPage = () => {
       id: "mealType",
       header: "Jenis makanan",
       cell: (info) => info.getValue().code,
+      size: 90,
     }),
     columnHelper.accessor("foods", {
       id: "foods",
@@ -213,7 +217,14 @@ const MealMenuPage = () => {
         <TableHeader>
           <TableRow>
             {table.getFlatHeaders().map((header) => (
-              <TableHead key={header.id}>
+              <TableHead
+                key={header.id}
+                style={{
+                  width: `${header.getSize()}px`,
+                  minWidth: `${header.getSize()}px`,
+                  maxWidth: `${header.getSize()}px`,
+                }}
+              >
                 {flexRender(
                   header.column.columnDef.header,
                   header.getContext(),
