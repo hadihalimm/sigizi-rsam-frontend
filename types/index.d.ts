@@ -99,6 +99,18 @@ interface FoodMaterialUsage {
   foodMaterial: FoodMaterial;
 }
 
+interface MealMenu {
+  id: number;
+  name: string;
+  day: string;
+  time: string;
+  foods: Food[];
+  mealTypeID: number;
+  mealType: MealType;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 interface Diet {
   id: number;
   code: string;
