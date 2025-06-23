@@ -447,7 +447,7 @@ const DailyPatientMealForm = ({
         </div>
 
         <div className="row-start-8">
-          <Label htmlFor="notes">Pasien tambahan?</Label>
+          <Label htmlFor="notes">Pasien telat?</Label>
         </div>
         <div className="col-span-3 row-start-8">
           <form.Field name="isNewlyAdmitted">
