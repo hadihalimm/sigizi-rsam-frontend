@@ -1,22 +1,7 @@
 "use client";
 
-import FoodMaterialForm from "@/components/FoodMaterialForm";
+import FoodForm from "@/components/FoodForm";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -27,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useIsMobile } from "@/hooks/use-mobile";
 import api from "@/lib/axios";
 import {
   ColumnDef,
@@ -43,13 +27,11 @@ import { isAxiosError } from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const FoodMaterialPage = () => {
-  const isMobile = useIsMobile();
+const FoodPage = () => {
+  const [foods, setFoods] = useState<Food[]>([]);
   const [foodMaterials, setFoodMaterials] = useState<FoodMaterial[]>([]);
+  const [selectedFood, setSelectedFood] = useState<Food | undefined>();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedFoodMaterial, setSelectedFoodMaterial] = useState<
-    FoodMaterial | undefined
-  >();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
     {
       id: "name",
@@ -57,9 +39,21 @@ const FoodMaterialPage = () => {
     },
   ]);
 
+  const fetchFoods = async () => {
+    try {
+      const res = await api.get("/food");
+      setFoods(res.data.data as Food[]);
+    } catch (err) {
+      if (isAxiosError(err)) {
+        toast.error(String(err.response?.data.error));
+      }
+      console.error(err);
+    }
+  };
+
   const fetchFoodMaterials = async () => {
     try {
-      const res = await api.get(`/food-material`);
+      const res = await api.get("/food-material");
       setFoodMaterials(res.data.data as FoodMaterial[]);
     } catch (err) {
       if (isAxiosError(err)) {
@@ -70,11 +64,12 @@ const FoodMaterialPage = () => {
   };
 
   useEffect(() => {
+    fetchFoods();
     fetchFoodMaterials();
   }, []);
 
-  const columnHelper = createColumnHelper<FoodMaterial>();
-  const columns: ColumnDef<FoodMaterial>[] = [
+  const columnHelper = createColumnHelper<Food>();
+  const columns: ColumnDef<Food>[] = [
     columnHelper.accessor("id", {
       id: "id",
       header: "ID",
@@ -86,21 +81,25 @@ const FoodMaterialPage = () => {
       cell: (info) => info.getValue(),
       sortingFn: "textCaseSensitive",
     }),
-    columnHelper.accessor("unit", {
-      id: "unit",
-      header: "Satuan",
-      cell: (info) => info.getValue(),
+    columnHelper.accessor("foodMaterialUsages", {
+      id: "foodMaterialUsages",
+      header: "Bahan makanan",
+      cell: (info) => (
+        <ul className="list-disc gap-y-1">
+          {info.getValue().map((usage, index) => (
+            <li key={index}>
+              {usage.quantityUsed} {usage.foodMaterial.unit}{" "}
+              {usage.foodMaterial.name}
+            </li>
+          ))}
+        </ul>
+      ),
     }),
-    columnHelper.accessor("standardPerMeal", {
-      id: "standardPerMeal",
-      header: "Standar per pasien",
-      cell: (info) => info.getValue(),
-    }),
-  ] as ColumnDef<FoodMaterial>[];
+  ] as ColumnDef<Food>[];
 
   const table = useReactTable({
     columns,
-    data: foodMaterials,
+    data: foods,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -125,7 +124,7 @@ const FoodMaterialPage = () => {
       <Input
         type="text"
         className="w-1/2 max-md:w-full"
-        placeholder="Cari bahan makanan"
+        placeholder="Cari makanan"
         value={columnFilters[0].value as string}
         onChange={(e) =>
           setColumnFilters([
@@ -137,13 +136,13 @@ const FoodMaterialPage = () => {
         }
       />
       <Button
-        className="w-[200px]"
+        className="w-[150px]"
         onClick={() => {
-          setSelectedFoodMaterial(undefined);
+          setSelectedFood(undefined);
           setDialogOpen(true);
         }}
       >
-        Tambah Bahan Makanan
+        Tambah Makanan
       </Button>
 
       <Table className="w-1/2 table-fixed max-md:w-full">
@@ -167,7 +166,7 @@ const FoodMaterialPage = () => {
               key={row.id}
               className="cursor-pointer"
               onClick={() => {
-                setSelectedFoodMaterial(row.original);
+                setSelectedFood(row.original);
                 setDialogOpen(true);
               }}
             >
@@ -181,53 +180,19 @@ const FoodMaterialPage = () => {
         </TableBody>
       </Table>
 
-      {isMobile ? (
-        <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DrawerContent>
-            <DrawerHeader className="text-left">
-              <DrawerTitle>
-                {selectedFoodMaterial
-                  ? "Edit Bahan Makanan"
-                  : "Tambah Bahan Makanan"}
-              </DrawerTitle>
-              <DrawerDescription></DrawerDescription>
-            </DrawerHeader>
-            <FoodMaterialForm
-              initialData={selectedFoodMaterial}
-              onSuccess={() => {
-                setDialogOpen(false);
-                setSelectedFoodMaterial(undefined);
-                fetchFoodMaterials();
-              }}
-              className="px-4"
-            />
-            <DrawerFooter className="pt-2"></DrawerFooter>
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
-            <DialogHeader>
-              <DialogTitle>
-                {selectedFoodMaterial
-                  ? "Edit Bahan Makanan"
-                  : "Tambah Bahan Makanan"}
-              </DialogTitle>
-              <DialogDescription></DialogDescription>
-            </DialogHeader>
-            <FoodMaterialForm
-              initialData={selectedFoodMaterial}
-              onSuccess={() => {
-                setDialogOpen(false);
-                setSelectedFoodMaterial(undefined);
-                fetchFoodMaterials();
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
+      <FoodForm
+        initialData={selectedFood}
+        foodMaterials={foodMaterials}
+        dialogOpen={dialogOpen}
+        setDialogOpen={setDialogOpen}
+        onSuccess={() => {
+          setDialogOpen(false);
+          setSelectedFood(undefined);
+          fetchFoods();
+        }}
+      />
     </div>
   );
 };
 
-export default FoodMaterialPage;
+export default FoodPage;

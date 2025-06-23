@@ -86,15 +86,17 @@ interface FoodMaterial {
   standardPerMeal: number;
 }
 
-interface MealItem {
+interface Food {
   id: number;
-  mealTypeID: number;
+  name: string;
+  foodMaterialUsages: FoodMaterialUsage[];
+}
+
+interface FoodMaterialUsage {
   foodID: number;
-  quantity: number;
-  mealType: MealType;
-  food: Food;
-  createdAt: Date;
-  updatedAt: Date;
+  foodMaterialID: number;
+  quantityUsed: number;
+  foodMaterial: FoodMaterial;
 }
 
 interface Diet {

@@ -17,8 +17,8 @@ interface FoodMaterialFormProps {
 }
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: " Silahkan masukkan Nama Makanan" }),
-  unit: z.string().min(1, { message: " Silahkan masukkan Satuan" }),
+  name: z.string().min(1, { message: "Silahkan masukkan nama bahan makanan" }),
+  unit: z.string().min(1, { message: "Silahkan masukkan satuan" }),
   standardPerMeal: z.coerce
     .number()
     .positive({ message: "Harus lebih dari 0" }),
@@ -71,7 +71,7 @@ const FoodMaterialForm = ({
     try {
       const res = await api.delete(`/admin/food-material/${id}`);
       console.log(res.status);
-      toast.success("Berhasil menghapus data makanan");
+      toast.success("Berhasil menghapus data bahan makanan");
       onSuccess();
     } catch (err) {
       if (isAxiosError(err)) {
