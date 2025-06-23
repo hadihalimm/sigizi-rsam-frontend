@@ -56,12 +56,17 @@ const sidebarAdmin = [
     items: [
       {
         title: "Katalog Menu",
-        url: "/menu",
+        url: "/meal-menu",
         icon: "/breakfast.png",
       },
       {
-        title: "Katalog Bahan Makanan",
+        title: "Katalog Makanan",
         url: "/food",
+        icon: "/burger.png",
+      },
+      {
+        title: "Katalog Bahan Makanan",
+        url: "/food-material",
         icon: "/vegetable.png",
       },
       {
